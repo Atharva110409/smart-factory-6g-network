@@ -4,13 +4,12 @@ An end-to-end causal inference, change-point breakpoint detection, leakage-safe 
 
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Streamlit App](https://img.shields.io/badge/Streamlit-Live%20Public%20App-FF4B4B.svg)](https://residential-bags-valley-optimize.trycloudflare.com)
+[![Streamlit App](https://img.shields.io/badge/Streamlit-Live%20Cloud%20App-FF4B4B.svg)](https://atharva110409-smart-factory-6g-network-appdashboard-p9hb2s.streamlit.app/)
 [![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-181717.svg)](https://github.com/Atharva110409/smart-factory-6g-network)
 [![Standards: 3GPP TS 22.104](https://img.shields.io/badge/3GPP-TS%2022.104%20Rel--18-informational.svg)](docs/latency_benchmarks.md)
 
-- **Public Live Dashboard**: [https://residential-bags-valley-optimize.trycloudflare.com](https://residential-bags-valley-optimize.trycloudflare.com)
+- **Official Live Cloud Dashboard**: [https://atharva110409-smart-factory-6g-network-appdashboard-p9hb2s.streamlit.app/](https://atharva110409-smart-factory-6g-network-appdashboard-p9hb2s.streamlit.app/)
 - **GitHub Repository**: [https://github.com/Atharva110409/smart-factory-6g-network](https://github.com/Atharva110409/smart-factory-6g-network)
-- **1-Click Streamlit Cloud Deploy**: [Deploy via share.streamlit.io](https://share.streamlit.io/deploy?repository=Atharva110409/smart-factory-6g-network&branch=main&mainModule=app/dashboard.py)
 
 ---
 
