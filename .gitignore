@@ -1,9 +1,11 @@
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
+
+# C extensions
 .Python
-env/
 build/
 develop-eggs/
 dist/
@@ -19,11 +21,40 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-.env
+
+# Virtual Environments
 venv/
+.venv/
+env/
 ENV/
+env.bak/
+venv.bak/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# IDE and Editor configurations
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
+
+# Operating System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Environment variables & local secrets
+.env
+.env.*
+
+# Logs, test traces, and temporary binaries
+*.log
+*.tmp
 cloudflared.exe
