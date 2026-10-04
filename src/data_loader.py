@@ -26,7 +26,12 @@ def load_raw(filepath: str = "data/raw/Thales_Group_Manufacturing.csv") -> pd.Da
         Loaded and ordered DataFrame with unified 'Timestamp'.
     """
     if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Raw dataset file not found at: {filepath}")
+        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+        alt_path = os.path.join(base_dir, filepath)
+        if os.path.exists(alt_path):
+            filepath = alt_path
+        else:
+            raise FileNotFoundError(f"Raw dataset file not found at: {filepath}")
 
     df = pd.read_csv(filepath)
 

@@ -84,12 +84,18 @@ def get_processed_data():
 @st.cache_resource
 def get_production_models():
     models_dict = {}
-    path_a = "models/early_warning_model_a.joblib"
-    path_b = "models/diagnosis_model_b.joblib"
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    path_a = os.path.join(base_dir, "models", "early_warning_model_a.joblib")
+    path_b = os.path.join(base_dir, "models", "diagnosis_model_b.joblib")
     if os.path.exists(path_a):
         models_dict["model_a"] = joblib.load(path_a)
+    elif os.path.exists("models/early_warning_model_a.joblib"):
+        models_dict["model_a"] = joblib.load("models/early_warning_model_a.joblib")
+        
     if os.path.exists(path_b):
         models_dict["model_b"] = joblib.load(path_b)
+    elif os.path.exists("models/diagnosis_model_b.joblib"):
+        models_dict["model_b"] = joblib.load("models/diagnosis_model_b.joblib")
     return models_dict
 
 
