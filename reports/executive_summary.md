@@ -48,7 +48,7 @@ Fleet Cost of Severe Network Degradation (Tier 0 Optimal vs. Tier 3 Degraded)
 
 ### Recommendation 1: Establish an Active-Mode Latency Guardrail at $\le 20.0\text{ ms}$
 - **Action:** Configure factory private 5G/Wi-Fi Quality of Service (QoS) slice alerts to trigger when communication latency exceeds **$20.0\text{ ms}$ on machines in `Active` mode**.
-- **Justification:** Machines under active cutting and robotic assembly begin experiencing throughput deceleration above $20.7\text{ ms}$ ($\Delta \beta = -0.3063\text{ units/hr per ms}$). Machines in `Idle` or `Maintenance` do not require priority wireless bandwidth.
+- **Justification & Headline Reconciliation:** Machines under active cutting and robotic assembly exhibit a localized throughput deceleration above $20.7\text{ ms}$ ($\Delta \beta = -0.3063\text{ units/hr per ms}$). **Crucially, this guardrail is strictly a precautionary operational threshold derived from the single statistically significant breakpoint identified under active load, rather than an indication that network latency is currently responsible for material production losses across the fleet.** Machines in `Idle` or `Maintenance` tolerate higher latency with no throughput penalty.
 
 ### Recommendation 2: Freeze Capital Expenditure on Sub-5ms Radio Over-Engineering
 - **Action:** Reject vendor proposals for ultra-costly sub-$5\text{ ms}$ 6G radio upgrades for standard discrete manufacturing cells.
