@@ -3,13 +3,33 @@
 An end-to-end causal inference, change-point breakpoint detection, leakage-safe machine learning, and interactive operational intelligence platform for industrial private wireless networks in cyber-physical manufacturing systems.
 
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Streamlit App](https://img.shields.io/badge/Streamlit-Live%20Cloud%20App-FF4B4B.svg)](https://atharva110409-smart-factory-6g-network-appdashboard-p9hb2s.streamlit.app/)
 [![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-181717.svg)](https://github.com/Atharva110409/smart-factory-6g-network)
 [![Standards: 3GPP TS 22.104](https://img.shields.io/badge/3GPP-TS%2022.104%20Rel--18-informational.svg)](docs/latency_benchmarks.md)
 
 - **Official Live Cloud Dashboard**: [https://atharva110409-smart-factory-6g-network-appdashboard-p9hb2s.streamlit.app/](https://atharva110409-smart-factory-6g-network-appdashboard-p9hb2s.streamlit.app/)
 - **GitHub Repository**: [https://github.com/Atharva110409/smart-factory-6g-network](https://github.com/Atharva110409/smart-factory-6g-network)
+
+<p align="center">
+  <img src="reports/live_cloud_screenshot.png" alt="6G Smart Factory Live Production Dashboard" width="100%" />
+</p>
+
+---
+
+## Table of Contents
+- [1. Executive Summary & Core Headline Finding](#1-executive-summary--core-headline-finding)
+- [Quick Start (< 2 Minutes)](#quick-start--2-minutes)
+- [2. The Analytical Storyline Chain](#2-the-analytical-storyline-chain)
+- [3. Repository Architecture & Data Management](#3-repository-architecture--data-management)
+- [4. Installation & Environment Setup](#4-installation--environment-setup)
+- [5. End-to-End Pipeline Execution](#5-end-to-end-pipeline-execution)
+- [6. Live Interactive Dashboard Architecture](#6-live-interactive-dashboard)
+- [7. Standards Alignment & Caveats (3GPP / ITU)](#7-standards-alignment--caveats-3gpp-ts-22104--itu)
+- [8. Limitations & Methodological Disclosures](#8-limitations--methodological-disclosures)
+- [9. Key Reports & Documentation](#9-key-reports--documentation)
+- [10. Contributing & Changelog](#10-contributing--changelog)
+- [11. License](#11-license)
 
 ---
 
@@ -27,6 +47,27 @@ This conclusion is reinforced by five converging empirical proofs:
 5. **Machine Learning Baseline Invariance:** Exhaustive baseline ladder testing on physical lookahead horizons ($H = 30\text{ min} \pm 10\text{ min}$) demonstrates that **no ML model meaningfully outperforms the majority-class baseline** (Dummy Majority: $78.42\%$ accuracy). Random Forest was chosen for production solely to suppress false alarms (Precision: $78.54\%$, Recall: $81.81\%$ on Low class), but identified only 4 of 131 High-efficiency events ($3.05\%$ recall). LightGBM captures more High events only by incurring a disastrous $97.05\%$ false alarm rate (Precision: $2.95\%$).
 
 **Managerial Takeaway:** The private wireless network is **operating safely within the physical process tolerance envelope**. Capital expenditure proposals for multi-million-dollar sub-5ms 6G radio over-engineering should be frozen; diagnostic capital should instead be channeled into spindle vibration, motor torque, and cutting-tool wear sensors.
+
+---
+
+## Quick Start (< 2 Minutes)
+
+Launch the complete platform locally in three commands:
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/Atharva110409/smart-factory-6g-network.git
+cd smart-factory-6g-network
+
+# 2. Install dependencies (virtual environment recommended)
+pip install -r requirements.txt
+
+# 3. Launch the production dashboard
+streamlit run app/dashboard.py
+```
+
+Or explore the verified cloud-hosted deployment directly in your browser:  
+🌐 **Live Cloud App**: [https://atharva110409-smart-factory-6g-network-appdashboard-p9hb2s.streamlit.app/](https://atharva110409-smart-factory-6g-network-appdashboard-p9hb2s.streamlit.app/)
 
 ---
 
@@ -68,10 +109,14 @@ $$\mathbf{Network\;Degradation} \longrightarrow \mathbf{Temporal\;Evidence} \lon
 
 ---
 
-## 3. Repository Architecture
+## 3. Repository Architecture & Data Management
 
 ```
-6g network/
+smart-factory-6g-network/
+├── .github/
+│   └── ISSUE_TEMPLATE/
+│       ├── bug_report.md              # Standardized bug reporting template
+│       └── feature_request.md         # Enhancement and feature proposal template
 ├── app/
 │   └── dashboard.py                   # Production Streamlit 5-module executive dashboard
 ├── data/
@@ -86,9 +131,7 @@ $$\mathbf{Network\;Degradation} \longrightarrow \mathbf{Temporal\;Evidence} \lon
 │   ├── early_warning_model_a.joblib   # Production Random Forest early warning artifact (H=30m)
 │   ├── diagnosis_model_b.joblib       # Production Random Forest root-cause diagnostic artifact
 │   ├── early_warning_model_a_lightgbm.joblib # Alternative high-recall/high-false-alarm model
-│   ├── diagnosis_model_b_lightgbm.joblib     # Alternative LightGBM diagnostic model
-│   ├── network_kmeans.joblib          # Trained 4-cluster K-Means model (fit on train only)
-│   └── network_scaler.joblib          # Standardized z-score scaler (fit on train only)
+│   └── diagnosis_model_b_lightgbm.joblib     # Alternative LightGBM diagnostic model
 ├── notebooks/                         # Exploratory data analysis notebooks
 ├── reports/
 │   ├── research_paper.md              # Full scientific research manuscript
@@ -102,31 +145,39 @@ $$\mathbf{Network\;Degradation} \longrightarrow \mathbf{Temporal\;Evidence} \lon
 │   ├── network_clusters_scatter.png   # 4-tier scatter with decision boundaries
 │   ├── latency_breakpoint_segmented_fit.png  # Segmented regression fit vs raw scatter
 │   ├── shap_summary_model_a.png       # Model A SHAP feature importance plot
-│   └── shap_summary_model_b.png       # Model B SHAP feature importance plot
+│   ├── shap_summary_model_b.png       # Model B SHAP feature importance plot
+│   ├── live_cloud_screenshot.png      # Verification capture of live cloud dashboard
+│   └── live_cloud_simulator_full.png  # Verification capture of live scenario simulator
 ├── src/
+│   ├── __init__.py                    # Module namespace initialization
 │   ├── data_loader.py                 # Telemetry ingestion, timestamp parsing & audit suite
 │   ├── network_profiling.py           # Unsupervised K-Means clustering & Risk Indexing
 │   ├── causal_analysis.py             # Granger VAR tests, BH-FDR & segmented breakpoint fitting
 │   ├── diagnostics.py                 # Bivariate correlations, mode profiling & Simpson checks
 │   ├── modeling.py                    # Leakage-safe time-aware training & SHAP explainers
 │   └── kpi.py                         # Five operational KPIs & economic loss computation
+├── CHANGELOG.md                       # Comprehensive milestone history (Steps 0–9)
+├── CONTRIBUTING.md                    # Guidelines, branching workflow & commit conventions
+├── LICENSE                            # MIT License
 ├── PROJECT_SPEC.md                    # Formal engineering & scientific specification
 ├── README.md                          # Repository documentation (this file)
 └── requirements.txt                   # Frozen python dependencies
 ```
+
+> **Note on File Sizes & Git LFS:** The raw telemetry dataset (`data/raw/Thales_Group_Manufacturing.csv`, 26 MB) and model artifacts (`models/*.joblib`, 1–4 MB) are tracked directly in git as they reside safely under GitHub's 100 MB hard limit and 50 MB recommendation threshold. For production scaling beyond 100 MB, Git LFS (`git lfs track "*.csv" "*.joblib"`) can be enabled.
 
 ---
 
 ## 4. Installation & Environment Setup
 
 ### Prerequisites
-- Python 3.10+ (tested on Python 3.11.7 on Windows x64)
+- Python 3.10+ (tested on Python 3.11.7 on Windows x64 and Debian/Ubuntu Linux)
 - Git
 
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/smart-factory-6g-network.git
+git clone https://github.com/Atharva110409/smart-factory-6g-network.git
 cd smart-factory-6g-network
 
 # Create and activate a virtual environment
@@ -136,7 +187,7 @@ python -m venv venv
 # Linux/macOS:
 source venv/bin/activate
 
-# Install required dependencies
+# Install required pinned dependencies
 pip install -r requirements.txt
 ```
 
@@ -184,15 +235,15 @@ python -c "from src.data_loader import load_raw; from src.network_profiling impo
 
 ---
 
-## 6. Live Interactive Dashboard (Step 7)
+## 6. Live Interactive Dashboard
 
-Launch the enterprise Streamlit dashboard:
+Launch the enterprise Streamlit dashboard locally:
 
 ```bash
 streamlit run app/dashboard.py --server.port 8501
 ```
 
-Access the dashboard at `http://localhost:8501`.
+Access the dashboard at `http://localhost:8501` or visit the verified cloud instance at [https://atharva110409-smart-factory-6g-network-appdashboard-p9hb2s.streamlit.app/](https://atharva110409-smart-factory-6g-network-appdashboard-p9hb2s.streamlit.app/).
 
 ```
 ===================================================================================
@@ -245,15 +296,24 @@ As documented in [`docs/assumptions.md`](docs/assumptions.md) and [`reports/rese
 
 ---
 
-## 9. Key Reports & Publications
+## 9. Key Reports & Documentation
 
 - **Full Scientific Paper:** [`reports/research_paper.md`](reports/research_paper.md) (comprehensive academic manuscript with full methodology, literature review, and citations).
 - **Executive Summary:** [`reports/executive_summary.md`](reports/executive_summary.md) (one-page briefing with financial sensitivity tables and 4 concrete operational action items).
 - **KPI Summary Report:** [`reports/kpi_report_summary.txt`](reports/kpi_report_summary.txt) (exact numerical parameters for all 5 KPIs).
 - **Baseline Model Ladder:** [`reports/model_baseline_ladder.csv`](reports/model_baseline_ladder.csv) & [`reports/model_confusion_matrices.md`](reports/model_confusion_matrices.md).
+- **Project Assumptions & Audit Log:** [`docs/assumptions.md`](docs/assumptions.md).
+- **3GPP Latency Benchmarks Reference:** [`docs/latency_benchmarks.md`](docs/latency_benchmarks.md).
 
 ---
 
-## 10. License
+## 10. Contributing & Changelog
 
-This repository is licensed under the Apache 2.0 / MIT Dual License. See `LICENSE` for details.
+- **Changelog:** Review all analytical milestones and version history in [CHANGELOG.md](CHANGELOG.md).
+- **Contributing Guidelines:** Code conventions, branching model, and PR guidelines are detailed in [CONTRIBUTING.md](CONTRIBUTING.md).
+
+---
+
+## 11. License
+
+This repository is licensed under the MIT License. See [LICENSE](LICENSE) for details.
