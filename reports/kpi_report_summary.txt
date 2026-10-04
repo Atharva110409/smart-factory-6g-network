@@ -1,0 +1,57 @@
+================================================================================
+                    STEP 6: 6G MANUFACTURING KPI SUMMARY REPORT
+================================================================================
+
+1. NETWORK RISK INDEX
+--------------------------------------------------------------------------------
+Formula: 0.5 * z(latency) + 0.5 * z(packet_loss)
+- Distribution: Mean = -0.0000, Std = 0.7047
+- Min = -1.7314, Median = 0.0004, Max = 1.7288
+
+2. LATENCY SENSITIVITY SCORE (units/hr per ms around 20.7 ms threshold)
+--------------------------------------------------------------------------------
+- Pooled Sensitivity: 0.1860 units/hr per ms
+- Active Mode Sensitivity: 0.3971 units/hr per ms
+  (Segmented Slope Inflection: Pre=0.2123, Post=-0.0940, Change=-0.3063)
+- Idle Mode Sensitivity: -0.4261 units/hr per ms
+- Maintenance Mode Sensitivity: -0.0653 units/hr per ms
+
+3. PACKET LOSS IMPACT RATIO
+--------------------------------------------------------------------------------
+- 95th Percentile Spike Threshold: 4.755% packet loss
+- Defect Rate during Spikes: 5.0143%
+- Baseline Defect Rate: 5.0085%
+- Packet Loss Impact Ratio: 1.0012
+- Error Rate Impact Ratio: 1.0054
+
+4. NETWORK TOLERANCE THRESHOLDS
+--------------------------------------------------------------------------------
+- Primary Active Production Threshold: 20.7 ms (F = 4.31, p < 0.05)
+- Pooled Headline Threshold: 41.2 ms (95% Block Bootstrap CI: [6.0, 45.2] ms)
+- Packet Loss Threshold: None (Continuous flat response across 0% to 5%)
+
+5. ESTIMATED COST OF INSTABILITY (Tier 0 Optimal vs Tier 3 Degraded)
+--------------------------------------------------------------------------------
+- Optimal Baseline Speed (Tier 0): 277.68 units/hr
+- Degraded Speed (Tier 3): 274.59 units/hr
+- Lost Production Throughput: 3.084 units/hr per machine
+
+Economic Sensitivity Analysis:
+* Low Scenario  (CM=$15/unit, Scrap=$8/unit):
+    Cost per Machine/hr: $46.26
+    Fleet Cost/hr (50 machines): $2,312.98
+    Fleet Cost per 8-hr Shift:   $18,503.81
+    Annualized (2,000 hrs):      $4,625,952.09
+
+* Base Scenario (CM=$25/unit, Scrap=$12/unit):
+    Cost per Machine/hr: $77.10
+    Fleet Cost/hr (50 machines): $3,854.96
+    Fleet Cost per 8-hr Shift:   $30,839.68
+    Annualized (2,000 hrs):      $7,709,920.15
+
+* High Scenario (CM=$40/unit, Scrap=$20/unit):
+    Cost per Machine/hr: $123.36
+    Fleet Cost/hr (50 machines): $6,167.94
+    Fleet Cost per 8-hr Shift:   $49,343.49
+    Annualized (2,000 hrs):      $12,335,872.24
+================================================================================

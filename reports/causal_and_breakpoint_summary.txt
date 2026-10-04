@@ -1,0 +1,39 @@
+================================================================================
+          STEP 3: TEMPORAL CAUSAL & NETWORK BREAKPOINT ANALYSIS REPORT
+================================================================================
+
+1. GRANGER CAUSALITY & TEMPORAL PREDICTIVE PRECEDENCE
+--------------------------------------------------------------------------------
+Note: Granger causality evaluates predictive precedence in time-series telemetry.
+It does NOT prove mechanical or physical causation.
+
+- Total Machine x Mode x Lag Configurations Tested: 450
+- Configurations with Raw P < 0.05: 23 (5.1%)
+- Configurations Significant after Benjamini-Hochberg FDR (q < 0.05): 0 (0.0%)
+- Statistical Finding: Across machines and modes, historical network latency does not
+  demonstrate statistically significant predictive precedence over production speed once
+  FDR multiple-testing control is applied. In this telemetry regime, variations behave as
+  stationary stochastic processes.
+
+2. LATENCY BREAKPOINT & SEGMENTED REGRESSION
+--------------------------------------------------------------------------------
+- Headline Latency Breakpoint: 41.2 ms (95% CI 6.0–45.2 ms)
+- Segmented Model Fit on Pooled Data:
+    Breakpoint: 41.22 ms
+    95% Block Bootstrap Confidence Interval: [6.01, 45.16] ms
+
+Stability Across Operation Modes:
+    Group_Type  Group_Name  Sample_Size  Latency_Breakpoint_ms  Pre_Slope  Post_Slope  R2_Gain  F_Statistic
+        Pooled    All Data       100000               41.21600   0.012905   -0.250907 0.000011     1.053203
+Operation_Mode      Active        70054               20.69300   0.212348   -0.093970 0.000062     4.312718
+Operation_Mode        Idle        20057               27.54796  -0.256313    0.041404 0.000064     1.279979
+Operation_Mode Maintenance         9889               25.49600  -0.272165    0.387550 0.000327     3.238197
+
+3. PACKET LOSS BREAKPOINT ASSESSMENT
+--------------------------------------------------------------------------------
+- Defect Rate & Error Rate vs Packet Loss: Packet loss is uniformly distributed across
+  [0%, 5%] with consistent marginal defect rates (~5.0%) across all tiers.
+  No sharp non-linear cliff or threshold effect exists for packet loss; quality metrics
+  remain stable across the observed 0-5% range.
+
+================================================================================
