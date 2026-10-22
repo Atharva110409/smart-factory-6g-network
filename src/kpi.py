@@ -125,7 +125,7 @@ def compute_tolerance_thresholds(
 ) -> Dict[str, Any]:
     """
     Computes Network Tolerance Thresholds for latency and packet loss.
-    Primary headline threshold: 20.7 ms (Active Mode).
+    Primary headline threshold: 20.7 ms (Active Mode, exploratory candidate).
     Pooled threshold: 41.2 ms (95% CI: 6.0 - 45.2 ms).
     Packet loss threshold: flat response (no cliff).
     """
@@ -149,7 +149,7 @@ def compute_tolerance_thresholds(
         "pooled_bootstrap_95ci": (6.0, 45.2),
         "packet_loss_threshold": "None (Continuous flat response across 0% to 5%)",
         "interpretation": (
-            "Under active mechanical production, latency exceeding 20.7 ms triggers throughput deceleration. "
+            "In active mechanical production, an exploratory candidate threshold appears at 20.7 ms (permutation p = 0.155, exploratory). "
             "Packet loss displays no discrete cliff threshold within the observed 0-5% range."
         ),
     }

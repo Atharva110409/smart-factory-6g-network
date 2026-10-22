@@ -3,10 +3,10 @@
 ## 1. Linear vs. Piecewise Threshold Dynamics
 - **Latency vs. Production Speed**:
   - Across the entire manufacturing fleet, linear Pearson correlations between contemporaneous latency and production speed are near zero ($r = -0.001, p = 0.74$).
-  - However, segmented regression reveals that in **`Active` Operation Mode**, throughput is piece-wise non-linear with a structural breakpoint at **20.7 ms** ($F = 4.31, p = 0.038$).
+  - However, segmented regression reveals that in **`Active` Operation Mode**, throughput exhibits an exploratory candidate inflection at **20.7 ms** (naive $F = 4.31, p = 0.038$, sup-F permutation $p = 0.155$, labeled strictly exploratory).
   - Pre-threshold slope: $\beta_1 = +0.212$ units/hr per ms.
   - Post-threshold slope: $\beta_1 + \beta_2 = -0.094$ units/hr per ms.
-  - In `Idle` and `Maintenance` modes, machines exhibit flat or non-significant breakpoint responses ($F = 1.28$ and $F = 3.24$), demonstrating that latency sensitivity is predominantly manifested during high active mechanical load.
+  - In `Idle` and `Maintenance` modes, machines exhibit flat or non-significant breakpoint responses ($F = 1.28$ and $F = 3.24$, permutation $p > 0.25$), confirming that the candidate breakpoint does not represent a robust physical limit.
 
 ## 2. Simpson's Paradox Verification
 - Stratification across `Active`, `Idle`, and `Maintenance` modes confirms that the absence of aggregate linear correlation is **not** an artifact of Simpson's paradox (where subgroups have strong opposite correlations canceling out).

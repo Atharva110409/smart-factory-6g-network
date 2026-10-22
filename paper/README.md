@@ -51,13 +51,6 @@ Or use `latexmk`:
 latexmk -pdf main.tex
 ```
 
-### Option C: Using Make
-If `make` and `pdflatex` are installed:
-```bash
-make
-make clean
-```
-
 ---
 
 ## 3. Mapping of Paper Empirical Values to Repository Artifacts
@@ -70,22 +63,35 @@ Every single quantitative value in `paper/main.tex` strictly traces to empirical
 | Time Horizon | 68.44 days (2025-01-01 to 2025-03-10) | `reports/data_audit_report.txt` |
 | Empirical Class Balance | Low: 77.825%, Medium: 19.189%, High: 2.986% | `reports/data_audit_report.txt` |
 | Net Representation Index | 0.9261 | Calculated from CSV frequencies |
-| KS Test (Production Speed) | $D=0.00473, p=0.0216$ (Bonf. $p=0.1947$) | `reports/diagnostics_correlations_and_thresholds.csv` |
-| KS Tests (All other 8 vars) | $D \in [0.00216, 0.00271], p \in [0.4538, 0.7431]$ | Part 0 audit suite (`scripts/verify_distribution.py`) |
-| Max Correlation Coefficient | $r = -0.007546$ (Defect Rate vs Maint. Score) | `reports/diagnostics_correlations_and_thresholds.csv` |
-| Max Correlation Bonf. $p$ | $p_{\text{adj}} = 0.6127$ ($36 \times 0.01702$) | Part 0 correlation analysis |
+| Audited Deterministic Rule Match | 99,998 / 100,000 (99.998%) | `reports/data_audit_report.txt` |
+| Theoretical Class Probabilities | Low: 77.778%, Medium: 19.259%, High: 2.963% | Calculated from uniform rule integration |
+| KS Test (Network Latency) | $D=0.003059, p=0.3061$ (Bonf. $p=1.0000$) | `scipy.stats.kstest` on raw CSV |
+| KS Test (Packet Loss) | $D=0.003540, p=0.1627$ (Bonf. $p=1.0000$) | `scipy.stats.kstest` on raw CSV |
+| KS Test (Production Speed) | $D=0.004756, p=0.0216$ (Bonf. $p=0.1947$) | `scipy.stats.kstest` on raw CSV |
+| KS Test (Error Rate) | $D=0.002063, p=0.7873$ (Bonf. $p=1.0000$) | `scipy.stats.kstest` on raw CSV |
+| KS Test (Defect Rate) | $D=0.002680, p=0.4683$ (Bonf. $p=1.0000$) | `scipy.stats.kstest` on raw CSV |
+| KS Test (Temperature) | $D=0.001985, p=0.8248$ (Bonf. $p=1.0000$) | `scipy.stats.kstest` on raw CSV |
+| KS Test (Vibration) | $D=0.001902, p=0.8617$ (Bonf. $p=1.0000$) | `scipy.stats.kstest` on raw CSV |
+| KS Test (Power Consumption) | $D=0.002114, p=0.7622$ (Bonf. $p=1.0000$) | `scipy.stats.kstest` on raw CSV |
+| KS Test (Maintenance Score) | $D=0.002850, p=0.3903$ (Bonf. $p=1.0000$) | `scipy.stats.kstest` on raw CSV |
+| Max Correlation Coefficient | $r = 0.007546$ (Vibration vs Latency) | `reports/diagnostics_correlations_and_thresholds.csv` |
+| Max Correlation Bonf. $p$ | $p_{\text{adj}} = 0.6127$ ($36 \times 0.017019$) | Pearson correlation matrix on raw CSV |
 | Augmented Dickey-Fuller | Stat: -14.49, $p < 0.001$ | `reports/causal_and_breakpoint_summary.txt` |
-| Granger Causality (Lags 1--15)| All raw $p \in [0.4283, 0.5421]$, BH FDR $q > 0.05$ | `reports/granger_causality_results.csv` |
-| Active Breakpoint $\hat{\tau}$ | 20.70 ms | `reports/causal_and_breakpoint_summary.txt` |
-| Active Breakpoint Naive $F$ | $F = 4.3127$, Naive $p = 0.0381$ | `reports/causal_and_breakpoint_summary.txt` |
+| Granger Causality (450 tests)| 23 nominal $p < 0.05$ (5.1%), 0 survive FDR ($q < 0.05$) | `reports/granger_causality_results.csv` |
+| Active Breakpoint $\hat{\tau}$ | 20.69 ms ($\approx 20.7$ ms) | `reports/causal_and_breakpoint_summary.txt` |
+| Active Breakpoint Naive $F$ | $F = 4.3127$, Naive $p = 0.0378$ | `reports/causal_and_breakpoint_summary.txt` |
 | Sup-$F$ Permutation Test | $p_{\text{perm}} = 0.1549$, FDR $q = 0.5327$ ($N=2,000$) | `reports/breakpoint_stability_by_group.csv` |
 | K-Means Clustering ($k=3$) | Silhouette: 0.3341, DB: 1.0592, CH: 48,799 | `reports/clustering_evaluation_k_selection.png` |
-| Model A (Network Only) ROC-AUC | RF: 0.5055, XGB: 0.5074, LGBM: 0.5015 | `reports/model_baseline_ladder.csv` |
-| Model A Macro F1 | RF: 0.2926, XGB: 0.2923, LGBM: 0.2921 | `reports/model_baseline_ladder.csv` |
-| Model B (Multimodal) ROC-AUC | RF: 0.9427, XGB: 0.9507, LGBM: 0.9491 | `reports/model_baseline_ladder.csv` |
-| Model C (Multimodal + Lag) ROC | RF: 0.9515, XGB: 0.9597, LGBM: 0.9582 | `reports/model_baseline_ladder.csv` |
-| Model C Macro F1 | RF: 0.7483, XGB: 0.7588, LGBM: 0.7570 | `reports/model_baseline_ladder.csv` |
-| Dummy Baseline Metrics | ROC-AUC: 0.5000, PR-AUC: 0.3333, F1: 0.2917 | `reports/model_baseline_ladder.csv` |
+| Model A (Horizon B) Dummy | Acc: 0.7842, Macro F1: 0.2930, ROC-AUC: 0.5000 | `reports/model_baseline_ladder.csv` |
+| Model A (Horizon B) Logistic | Acc: 0.2791, Macro F1: 0.2321, ROC-AUC: 0.5029 | `reports/model_baseline_ladder.csv` |
+| Model A (Horizon B) RF | Acc: 0.6730, Macro F1: 0.3368, ROC-AUC: 0.5068 | `reports/model_baseline_ladder.csv` |
+| Model A (Horizon B) LightGBM | Acc: 0.4313, Macro F1: 0.2966, ROC-AUC: 0.5073 | `reports/model_baseline_ladder.csv` |
+| Model A (Horizon A) RF | Acc: 0.5284, Macro F1: 0.3126, ROC-AUC: 0.4949 | `reports/model_baseline_ladder.csv` |
+| Model A (Horizon A) LightGBM | Acc: 0.3725, Macro F1: 0.2707, ROC-AUC: 0.4988 | `reports/model_baseline_ladder.csv` |
+| Model B (Diagnosis) RF | Acc: 0.5570, Macro F1: 0.3246, ROC-AUC: 0.5016 | `reports/model_baseline_ladder.csv` |
+| Model B (Diagnosis) LightGBM | Acc: 0.3789, Macro F1: 0.2733, ROC-AUC: 0.4994 | `reports/model_baseline_ladder.csv` |
+| Model A (Unseen Machines) RF | Acc: 0.7024, Macro F1: 0.3275, ROC-AUC: 0.4896 | `reports/model_baseline_ladder.csv` |
+| Model A (Unseen Machines) LGBM| Acc: 0.4435, Macro F1: 0.2889, ROC-AUC: 0.4738 | `reports/model_baseline_ladder.csv` |
 
 ---
 
