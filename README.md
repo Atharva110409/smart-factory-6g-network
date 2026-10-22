@@ -37,16 +37,16 @@ An end-to-end causal inference, change-point breakpoint detection, leakage-safe 
 
 Across 100,000 continuous operating records from 50 industrial CNC and assembly machines over 68.4 days:
 
-> **Headline Finding:** Within the observed operating envelope ($13.4\text{ to }37.9\text{ ms}$ latency, $0.0\%\text{ to }5.0\%$ packet loss), **network conditions are not currently a major driver of efficiency degradation or defect generation in this fleet.**
+> **Headline Finding:** Within the observed operating envelope ($13.4\text{ to }37.9\text{ ms}$ latency, $0.0\%\text{ to }5.0\%$ packet loss), **network conditions are not currently a major driver of efficiency degradation or defect generation in this dataset.**
 
 This conclusion is reinforced by five converging empirical proofs:
 1. **Zero Forecasting Precedence (Granger Null):** Out of 450 machine- and mode-stratified Granger causality tests across multiple lags, 23 nominally rejected $H_0$ ($5.1\%$, matching random noise), and **zero (0) survived Benjamini-Hochberg FDR control ($q < 0.05$)**. Historical network telemetry does not forecast future manufacturing throughput beyond throughput's own autoregressive history.
-2. **Narrow, Mode-Specific Nonlinear Breakpoint:** Piecewise segmented regression proves a statistically significant throughput threshold at **$20.7\text{ ms}$ exclusively in `Active` production mode** ($F = 4.31, p = 0.038$, slope change $\Delta \beta = -0.3063\text{ units/hr per ms}$). Pooled fleet regression yields an unstable nominal threshold of $41.2\text{ ms}$ with an excessively wide 95% bootstrap CI of $[6.0, 45.2]\text{ ms}$.
+2. **Exploratory Nonlinear Breakpoint at $20.7\text{ ms}$:** Segmented regression identified an empirical candidate throughput threshold at **$20.7\text{ ms}$ in `Active` production mode** (slope change $\Delta \beta = -0.3063\text{ units/hr per ms}$). While a standard unadjusted F-test yields nominal significance ($F = 4.31, p = 0.038$), this standard test is invalid because the breakpoint was selected via grid-search over candidate quantiles. Under a sup-F permutation test ($N = 2,000$), the permutation $p$-value is $0.155$ (Benjamini-Hochberg FDR $q = 0.533$), which fails multiple-testing correction; hence, the $20.7\text{ ms}$ breakpoint is strictly **exploratory**. Pooled regression yields an unstable nominal threshold of $41.2\text{ ms}$ with an unreliably wide 95% bootstrap CI of $[6.0, 45.2]\text{ ms}$.
 3. **Flat Defect Response:** Quality control defect rates remain static at $\sim 5.01\%$ regardless of packet loss ($1.0012$ impact ratio during 95th-percentile spikes $>4.755\%$). Industrial controllers tolerate up to $5\%$ packet loss without quality cliffs.
-4. **Modest Macroeconomic Divergence:** The empirical throughput divergence between optimal connectivity (Tier 0: $13.4\text{ ms}, 1.24\%$ loss) and severe degradation (Tier 3: $37.7\text{ ms}, 3.75\%$ loss) is restricted to **$3.084\text{ units/hr per machine}$** ($1.11\%$ of baseline output), translating to $\$3,854.96/\text{hr}$ across the 50-machine fleet under base contribution margin ($\$25.00/\text{unit}$).
-5. **Machine Learning Baseline Invariance:** Exhaustive baseline ladder testing on physical lookahead horizons ($H = 30\text{ min} \pm 10\text{ min}$) demonstrates that **no ML model meaningfully outperforms the majority-class baseline** (Dummy Majority: $78.42\%$ accuracy). Random Forest was chosen for production solely to suppress false alarms (Precision: $78.54\%$, Recall: $81.81\%$ on Low class), but identified only 4 of 131 High-efficiency events ($3.05\%$ recall). LightGBM captures more High events only by incurring a disastrous $97.05\%$ false alarm rate (Precision: $2.95\%$).
+4. **Illustrative & Assumption-Driven Cost of Instability:** The empirical throughput divergence between optimal connectivity (Tier 0: $13.4\text{ ms}, 1.24\%$ loss) and degraded connectivity (Tier 3: $37.7\text{ ms}, 3.75\%$ loss) is restricted to **$3.084\text{ units/hr per machine}$** ($1.11\%$ of baseline output). Cost-of-instability figures are illustrative and assumption-driven scenarios based on hypothetical contribution margins ($\$15.00$ to $\$40.00/\text{unit}$), yielding an estimated fleet cost of $\$2,313$ to $\$6,168/\text{fleet-hr}$ (base case: $\$3,855/\text{fleet-hr}$ at $\$25.00/\text{unit}$) during sustained Tier 3 degradation.
+5. **Machine Learning Models Near Chance (ROC-AUC $\approx 0.50$):** Exhaustive baseline ladder testing on physical lookahead horizons ($H = 30\text{ min} \pm 10\text{ min}$) demonstrates that **ROC-AUC is approximately $0.50$ (near chance) for all models** (Logistic Regression: $0.503$, Random Forest: $0.507$, LightGBM: $0.507$), confirming no model meaningfully outperforms the majority-class baseline (Dummy Majority: $78.42\%$ accuracy). Random Forest was retained solely to demonstrate conservative majority-class alerting without false alarm flooding, but detected only 4 of 131 High-efficiency events ($3.05\%$ recall). LightGBM captures more High events only by incurring a disastrous $97.05\%$ false alarm rate (Precision: $2.95\%$).
 
-**Managerial Takeaway:** The private wireless network is **operating safely within the physical process tolerance envelope**. Capital expenditure proposals for multi-million-dollar sub-5ms 6G radio over-engineering should be frozen; diagnostic capital should instead be channeled into spindle vibration, motor torque, and cutting-tool wear sensors.
+**Managerial Takeaway:** In this dataset, the network telemetry operates within mechanical process tolerance. Capital expenditure proposals for sub-5ms 6G radio over-engineering should be conditionally re-evaluated rather than prematurely funded, but freezing capex is a conditional recommendation that requires prior validation on real factory telemetry with sub-second resolution and physical process telemetry. Diagnostic capital should prioritize spindle vibration, motor torque, and cutting-tool wear sensors.
 
 ---
 
@@ -82,28 +82,28 @@ $$\mathbf{Network\;Degradation} \longrightarrow \mathbf{Temporal\;Evidence} \lon
 |                                    ANALYTICAL STORYLINE CHAIN                                      |
 +----------------------------------------------------------------------------------------------------+
 |  [Step 1 & 2] NETWORK PROFILING                                                                    |
-|  - Empirical k-selection (k=4) via Silhouette (0.4061) and Davies-Bouldin (0.7687)                 |
+|  - 4 clusters form a pragmatic partition of continuous uniform space (Silhouette: 0.4061)          |
 |  - Continuous Network Risk Index: 0.5 * z(lat) + 0.5 * z(loss)                                     |
 |                                       |                                                            |
 |                                       v                                                            |
 |  [Step 3 & 4] TEMPORAL EVIDENCE & DIAGNOSTICS                                                      |
 |  - Granger causality: 0 / 450 tests survive Benjamini-Hochberg FDR (q < 0.05)                      |
-|  - Reconciled Headline: Zero predictive precedence, but active-mode breakpoint at 20.7 ms          |
-|  - Diagnostics: Linear |r| < 0.015; packet loss shows no quality cliff (ratio = 1.0012)            |
+|  - Reconciled Headline: Zero predictive precedence; active-mode breakpoint at 20.7 ms exploratory  |
+|  - Diagnostics: Linear |r| < 0.008; independent uniforms; packet loss shows no quality cliff        |
 |                                       |                                                            |
 |                                       v                                                            |
 |  [Step 5] LEAKAGE-SAFE PREDICTIVE MODELING                                                         |
 |  - Label Audit: Efficiency_Status = deterministic function of Speed and Error Rate                 |
 |  - Circularity Rule: Speed and Error Rate strictly excluded from Model B                           |
 |  - Model A (Early Warning, H=30min) vs Model B (Diagnosis, Current)                                |
-|  - Baseline Reality: No model substantially beats Dummy Majority (78.42% Acc)                      |
-|  - Model Selection: Random Forest chosen to avoid false alarms (only 4/99 High-class detections)   |
+|  - Baseline Reality: All models near chance (ROC-AUC ~0.50); no generalization gap expected        |
+|  - Model Selection: Random Forest retained solely to avoid false alarm flooding                    |
 |                                       |                                                            |
 |                                       v                                                            |
 |  [Step 6 & 7] OPERATIONAL KPIS & ECONOMIC SENSITIVITY                                              |
-|  - Latency Sensitivity Score: Active inflection Delta beta = -0.3063 units/hr per ms               |
-|  - Cost of Instability: Tier 0 vs Tier 3 loss = 3.084 units/hr ($3,855/fleet-hr base)              |
-|  - Synthesis: Network operates within physical process tolerance; refocus capex on tool wear       |
+|  - Latency Sensitivity Score: Active inflection Delta beta = -0.3063 units/hr per ms (exploratory)  |
+|  - Cost of Instability: Illustrative assumption-driven scenario ($2,313–$6,168/fleet-hr range)     |
+|  - Synthesis: Telemetry within tolerance in dataset; conditionally validate capex on real data     |
 +----------------------------------------------------------------------------------------------------+
 ```
 
@@ -291,7 +291,11 @@ For comprehensive technical analysis, consult [`docs/latency_benchmarks.md`](doc
 As documented in [`docs/assumptions.md`](docs/assumptions.md) and [`reports/research_paper.md`](reports/research_paper.md):
 - **Granger Causality $\neq$ Physical Causation:** Granger non-causality confirms that past network logs provide no incremental forecasting power over machine throughput. It does not imply that cutting physical Ethernet/radio cables would have no impact.
 - **Unmeasured Physical Confounders:** Unobserved mechanical variables—including cutting tool sharpness, spindle bearing friction, raw material hardness, and ambient factory temperature variations—represent true physical drivers of production speed.
-- **Model B Performance Ceiling:** In accordance with scientific integrity, contemporaneous `Production_Speed_units_per_hr` and `Error_Rate_%` were permanently excluded from Model B because they deterministically define `Efficiency_Status` ($99.998\%$ audit match). Model B's macro-F1 ($\sim 0.33$) reflects genuine physical sensor root-cause predictability, not trivial label reconstruction.
+- **Model B Performance Ceiling & Near-Chance Discrimination:** In accordance with scientific integrity, contemporaneous `Production_Speed_units_per_hr` and `Error_Rate_%` were permanently excluded from Model B because they deterministically define `Efficiency_Status` ($99.998\%$ audit match). However, across all models, ROC-AUC is approximately $0.50$ (near chance). Model B's macro-F1 ($\sim 0.32\text{--}0.33$) does not reflect genuine physical sensor root-cause predictability; the models do not meaningfully beat random guessing.
+- **Generalization-Gap Interpretation:** The minimal difference between known machines ($0.3368$ Macro-F1) and unseen machines ($0.3275$ Macro-F1) occurs because near-chance performance on both splits produces no expected gap; this is a property of chance-level predictions, not evidence of model generalization.
+- **Synthetic & Independent Variable Properties:** Kolmogorov-Smirnov tests confirm that key numeric variables (`Network_Latency_ms`, `Packet_Loss_%`, `Production_Speed_units_per_hr`, `Error_Rate_%`, `Quality_Control_Defect_Rate_%`) follow independent uniform distributions with near-zero pairwise correlations ($|r| < 0.008$), plainly indicating that the data are synthetic and independently generated.
+- **Pragmatic Spatial Partitioning:** The 4 clusters are a pragmatic partition of a continuous uniform space, not naturally occurring physical regimes.
+- **Exploratory Breakpoints:** The Active-mode breakpoint at $20.7\text{ ms}$ does not survive sup-F permutation testing ($p = 0.155$, FDR $q = 0.533$) and is strictly exploratory.
 - **Simulator Nature:** Predictions generated by the Network Scenario Simulator represent statistical conditional expectations given hypothetical inputs, not guaranteed counterfactual outcomes.
 
 ---
