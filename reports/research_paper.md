@@ -1,10 +1,11 @@
-# Empirical Assessment of Industrial Network Telemetry on Manufacturing Efficiency: An End-to-End Causal, Breakpoint, and Machine Learning Investigation for Private 5G/6G Networks
+# A Leakage-Safe Audit of Network Telemetry for Manufacturing Efficiency in a Synthetic Smart-Factory Benchmark
 
-**Author:** Antigravity Advanced Agentic AI Laboratory  
-**Affiliation:** Industrial Telemetry & Cyber-Physical Systems Research Group  
+**Author:** Atharva Gangurde  
+**Affiliation:** MVP Samaj’s Karmaveer Adv. Baburao Ganpatrao Thakare College of Engineering, Nashik, Maharashtra, India  
 **Dataset:** Thales Group Advanced Manufacturing Testbed (50 CNC/Assembly Machines, 100,000 Synchronized Records, 68.4 Operating Days)  
 **Date:** October 2026  
 **Status:** Final Research Report & Publication Manuscript  
+
 
 ---
 
