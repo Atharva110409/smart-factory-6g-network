@@ -11,9 +11,9 @@ An end-to-end causal inference, change-point breakpoint detection, leakage-safe 
 - **Official Live Cloud Dashboard**: [https://atharva110409-smart-factory-6g-network-appdashboard-p9hb2s.streamlit.app/](https://atharva110409-smart-factory-6g-network-appdashboard-p9hb2s.streamlit.app/)
 - **GitHub Repository**: [https://github.com/Atharva110409/smart-factory-6g-network](https://github.com/Atharva110409/smart-factory-6g-network)
 
-<p align="center">
-  <img src="reports/live_cloud_screenshot.png" alt="6G Smart Factory Live Production Dashboard" width="100%" />
-</p>
+![Dashboard overview](docs/images/dashboard_overview.png)
+
+![Network Scenario Simulator](docs/images/dashboard_simulator.png)
 
 ---
 

@@ -1,0 +1,6 @@
+paper/** linguist-documentation
+*.tex linguist-detectable=false
+*.cls linguist-vendored
+*.bib linguist-documentation
+reports/** linguist-documentation
+docs/** linguist-documentation
