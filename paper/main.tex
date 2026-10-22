@@ -8,10 +8,18 @@
 \usepackage{textcomp}
 \usepackage{xcolor}
 \usepackage{booktabs}
+\usepackage{tabularx}
 \usepackage{multirow}
 \usepackage{url}
 \usepackage{tikz}
 \usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc}
+
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.95}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.85}
+\renewcommand{\dbltopfraction}{0.95}
+\renewcommand{\dblfloatpagefraction}{0.85}
 
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
@@ -97,23 +105,23 @@ The application of wireless network telemetry and machine learning to smart manu
 \caption{Taxonomy of Related Work in Industrial Network Telemetry and Predictive Analytics}
 \label{tab:related_work}
 \centering
-\small
-\begin{tabular}{lp{3.2cm}lp{2.8cm}p{2.6cm}p{4.2cm}}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}l >{\raggedright\arraybackslash}p{2.6cm} l >{\raggedright\arraybackslash}p{2.2cm} >{\raggedright\arraybackslash}p{2.2cm} X@{}}
 \toprule
 \textbf{Reference} & \textbf{Focus} & \textbf{Data Origin} & \textbf{Temporal Validation?} & \textbf{Leakage Addressed?} & \textbf{Primary Finding / Limitation} \\
 \midrule
-Haque \textit{et al.}~\cite{haque2025urllc} & 5G/6G URLLC Survey & Survey / Standards & N/A & N/A & Identifies sub-millisecond jitter and latency targets for CPPS control loops. \\
-Paudyal \textit{et al.}~\cite{paudyal2025gnb} & Local Breakout for URLLC & Testbed / Emulation & Time-indexed logs & Partial & Local breakout at gNB reduces latency for coordinated industrial AGVs. \\
-Ibrahim \textit{et al.}~\cite{ibrahim2025urllc} & URLLC in Industry 5.0 & Architectural Review & N/A & N/A & Classifies cross-layer scheduling techniques for mission-critical robotics. \\
-Alves \textit{et al.}~\cite{alves2021beyond} & Beyond 5G URLLC Modes & Testbed / Analytical & Static cross-validation & Unaddressed & Examines scalable service modes for extreme industrial telemetry. \\
-Popovski \textit{et al.}~\cite{popovski20185g} & Network Slicing for URLLC & Theoretical / Sim & N/A & N/A & Establishes trade-offs between throughput, packet delay, and block reliability. \\
-Kapoor \& Narayanan~\cite{kapoor2023leakage} & ML Reproducibility & Meta-Analysis & Cross-domain & Comprehensive & Demonstrates that data leakage affects hundreds of published scientific ML studies. \\
-L{\'o}pez de Prado~\cite{lopez2018advances} & Temporal ML Validation & Financial / Time Series & Purged/Embargoed CV & Comprehensive & Formulates purging and embargoing to eliminate serial correlation leakage. \\
-Andrews~\cite{andrews1993tests} & Structural Breakpoints & Econometric Theory & Time series & N/A & Proves asymptotic distribution of sup-F tests under unknown changepoints. \\
-Truong \textit{et al.}~\cite{truong2020selective} & Offline Changepoint & Algorithmic Review & Windowed search & N/A & Evaluates cost functions and penalty selections across continuous time series. \\
-\textbf{This Work} & \textbf{Temporal Evidence Pipeline} & \textbf{Enterprise Smart Factory} & \textbf{Chronological \& Grouped Split} & \textbf{Comprehensive (Leak-Free)} & \textbf{Proves uniform dataset structure, disconfirms naive breakpoint, exposes proxy leakage.} \\
+Haque \textit{et al.}~\cite{haque2025urllc} & 5G/6G URLLC Survey & Survey / Standards & N/A & N/A & Sub-millisecond jitter/latency targets for CPPS control loops. \\
+Paudyal \textit{et al.}~\cite{paudyal2025gnb} & Local Breakout URLLC & Testbed / Emulation & Time-indexed logs & Partial & Local breakout at gNB reduces latency for coordinated AGVs. \\
+Ibrahim \textit{et al.}~\cite{ibrahim2025urllc} & URLLC in Industry 5.0 & Architectural Review & N/A & N/A & Cross-layer scheduling techniques for mission-critical robotics. \\
+Alves \textit{et al.}~\cite{alves2021beyond} & Beyond 5G URLLC & Testbed / Analytical & Static cross-validation & Unaddressed & Scalable service modes for extreme industrial telemetry. \\
+Popovski \textit{et al.}~\cite{popovski20185g} & Network Slicing & Theoretical / Sim & N/A & N/A & Trade-offs between throughput, packet delay, and reliability. \\
+Kapoor \& Narayanan~\cite{kapoor2023leakage} & ML Reproducibility & Meta-Analysis & Cross-domain & Comprehensive & Data leakage affects hundreds of published scientific ML studies. \\
+L{\'o}pez de Prado~\cite{lopez2018advances} & Temporal Validation & Financial / Time Series & Purged / Embargoed & Comprehensive & Purging/embargoing eliminates serial correlation leakage. \\
+Andrews~\cite{andrews1993tests} & Breakpoint Tests & Econometric Theory & Time series & N/A & Proves asymptotic distribution of sup-F unknown changepoint tests. \\
+Truong \textit{et al.}~\cite{truong2020selective} & Offline Changepoint & Algorithmic Review & Windowed search & N/A & Cost functions and penalty selection across continuous series. \\
+\textbf{This Work} & \textbf{Temporal Evidence} & \textbf{Enterprise Factory} & \textbf{Chronological / Grouped} & \textbf{Comprehensive} & \textbf{Proves uniform data structure, disconfirms naive breakpoint, exposes proxy leakage.} \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table*}
 
 \subsection{Network Telemetry in Smart Factories}
@@ -126,17 +134,17 @@ In the domain of predictive maintenance (PdM), tree-based gradient boosting algo
 \label{sec:methodology}
 
 \subsection{Pipeline Architecture Overview}
-The end-to-end analytical framework developed in this study is illustrated in Fig.~\ref{fig:architecture}. The pipeline enforces strict unidirectional data flow across four decoupled modules: (1) Generative & Distributional Audit, (2) Temporal & Structural Changepoint Analysis, (3) Unsupervised Continuum Profiling, and (4) Leakage-Safe Predictive Modeling.
+The end-to-end analytical framework developed in this study is illustrated in Fig.~\ref{fig:architecture}. The pipeline enforces strict unidirectional data flow across four decoupled modules: (1) Generative \& Distributional Audit, (2) Temporal \& Structural Changepoint Analysis, (3) Unsupervised Continuum Profiling, and (4) Leakage-Safe Predictive Modeling.
 
 \begin{figure*}[t]
 \centering
 \begin{tikzpicture}[
-    node distance=1.2cm and 1.8cm,
-    block/.style={rectangle, draw=black!70, fill=blue!5, thick, rounded corners=3pt, text width=3.8cm, minimum height=1.3cm, align=center, font=\footnotesize},
-    audit/.style={rectangle, draw=red!70, fill=red!5, thick, rounded corners=3pt, text width=3.8cm, minimum height=1.3cm, align=center, font=\footnotesize},
-    model/.style={rectangle, draw=green!70!black, fill=green!5, thick, rounded corners=3pt, text width=3.8cm, minimum height=1.3cm, align=center, font=\footnotesize},
-    eval/.style={rectangle, draw=purple!70, fill=purple!5, thick, rounded corners=3pt, text width=3.8cm, minimum height=1.3cm, align=center, font=\footnotesize},
-    arrow/.style={-{Stealth[scale=1.0]}, thick, draw=black!80}
+    node distance=0.55cm and 1.2cm,
+    block/.style={rectangle, draw=black!70, fill=blue!5, thick, rounded corners=3pt, text width=3.4cm, minimum height=1.05cm, align=center, font=\scriptsize},
+    audit/.style={rectangle, draw=red!70, fill=red!5, thick, rounded corners=3pt, text width=3.4cm, minimum height=1.05cm, align=center, font=\scriptsize},
+    model/.style={rectangle, draw=green!70!black, fill=green!5, thick, rounded corners=3pt, text width=3.4cm, minimum height=1.05cm, align=center, font=\scriptsize},
+    eval/.style={rectangle, draw=purple!70, fill=purple!5, thick, rounded corners=3pt, text width=3.4cm, minimum height=1.05cm, align=center, font=\scriptsize},
+    arrow/.style={-{Stealth[scale=0.9]}, thick, draw=black!80}
 ]
 
 % Nodes
@@ -194,9 +202,11 @@ where $E$ denotes Error Rate (\%) and $P$ denotes Production Speed (units/hr).
 
 Under independent uniform variables $E \sim \mathcal{U}(0, 15)$ and $P \sim \mathcal{U}(50, 500)$, the theoretical probabilities are:
 \begin{align}
-P(\text{Low}) &= 1 - P(E \le 5.0 \land P > 200) = 1 - \left(\frac{1}{3}\right)\left(\frac{2}{3}\right) = \frac{7}{9} \approx 77.778\%, \nonumber \\
-P(\text{High}) &= P(P > 400 \land E \le 2.0) = \left(\frac{2}{9}\right)\left(\frac{2}{15}\right) = \frac{4}{135} \approx 2.963\%, \nonumber \\
-P(\text{Medium}) &= 1 - \frac{7}{9} - \frac{4}{135} = \frac{26}{135} \approx 19.259\%.
+P(\text{Low}) &= 1 - P(E \le 5.0 \land P > 200) \nonumber \\
+&= 1 - (1/3)(2/3) = 7/9 \approx 77.78\%, \nonumber \\
+P(\text{High}) &= P(P > 400 \land E \le 2.0) \nonumber \\
+&= (2/9)(2/15) = 4/135 \approx 2.96\%, \nonumber \\
+P(\text{Medium}) &= 1 - 7/9 - 4/135 = 26/135 \approx 19.26\%.
 \label{eq:theoretical_probs}
 \end{align}
 
@@ -208,7 +218,7 @@ Recomputing the exact empirical class frequencies from the CSV confirms:
 \end{itemize}
 To quantify the extreme class skew, we compute the Net Representation Index (NRI) between the majority and minority classes:
 \begin{equation}
-\text{NRI}_{\text{Low vs High}} = \frac{N_{\text{Low}} - N_{\text{High}}}{N_{\text{Low}} + N_{\text{High}}} = \frac{77,825 - 2,986}{77,825 + 2,986} = 0.9261.
+\text{NRI} = \frac{N_{\text{Low}} - N_{\text{High}}}{N_{\text{Low}} + N_{\text{High}}} = \frac{77,825 - 2,986}{77,825 + 2,986} = 0.9261.
 \label{eq:nri}
 \end{equation}
 This verifies severe imbalance: over $77.8\%$ of operational states fall into the degraded ``Low'' efficiency regime, while pristine ``High'' efficiency represents less than $3\%$ of operations.
@@ -279,8 +289,9 @@ Table~\ref{tab:ks_audit} details the results of the Kolmogorov-Smirnov goodness-
 \caption{Kolmogorov-Smirnov Goodness-of-Fit Tests Against Uniform Distribution $\mathcal{U}(a, b)$ ($N=100,000$)\textsuperscript{*}}
 \label{tab:ks_audit}
 \centering
-\small
-\begin{tabular}{lcccc}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lcccc@{}}
 \toprule
 \textbf{Variable} & \textbf{Bounds $[a, b]$} & \textbf{KS Stat $D$} & \textbf{Raw $p$} & \textbf{Bonf. $p$} \\
 \midrule
@@ -294,9 +305,9 @@ Vibration (Hz) & $[0.100, 5.000]$ & 0.001902 & 0.8617 & 1.0000 \\
 Power Cons. (kW) & $[1.500, 10.000]$ & 0.002114 & 0.7622 & 1.0000 \\
 Maintenance Score & $[0.000, 1.000]$ & 0.002850 & 0.3903 & 1.0000 \\
 \bottomrule
-\multicolumn{5}{l}{\footnotesize \textsuperscript{*}Note: KS bounds were estimated from the data, so $p$-values are conservative} \\
-\multicolumn{5}{l}{\footnotesize (Lilliefors-type parameter estimation correction not applied).}
 \end{tabular}
+\vspace{1ex}
+{\raggedright \footnotesize \textsuperscript{*}KS bounds were estimated from data; $p$-values are conservative (Lilliefors-type correction not applied).\par}
 \end{table}
 
 The empirical findings are definitive. For eight of the nine variables, the raw $p$-values exceed 0.16, showing remarkable adherence to uniform distributions. For Production Speed, the test yields $D=0.004756$ with a raw $p=0.0216$. However, when correcting for multiple testing across all nine variables, the Bonferroni-adjusted $p$-value is $p_{\text{adj}} = 0.1947$ (and across the five core operational variables, $p_{\text{adj}} = 0.1082$); neither reaches the standard significance threshold $\alpha = 0.05$. Thus, all nine features are \textit{statistically consistent with independent uniform generation}.
@@ -316,7 +327,9 @@ Table~\ref{tab:granger_results} presents the Granger causality test summary eval
 \caption{Granger Causality Analysis: Network Latency $\to$ Production Speed (450 Configurations Tested)}
 \label{tab:granger_results}
 \centering
-\begin{tabular}{lcccc}
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}lcccc@{}}
 \toprule
 \textbf{Operation Mode} & \textbf{Tests} & \textbf{Raw $p < 0.05$} & \textbf{FDR $q < 0.05$} & \textbf{Significant?} \\
 \midrule
@@ -338,7 +351,9 @@ Evaluating segmented linear regression models across discrete operational modes 
 \caption{Structural Breakpoint Evaluation in Network Latency vs. Production Speed}
 \label{tab:breakpoint_results}
 \centering
-\begin{tabular}{lccccc}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lccccc@{}}
 \toprule
 \textbf{Data Slice} & \textbf{Candidate $\tau$} & \textbf{Sup-$F$} & \textbf{Naive $p$} & \textbf{Perm. $p$} & \textbf{FDR $q$} \\
 \midrule
@@ -354,16 +369,25 @@ While the naive $F$-test reports an apparently significant $p = 0.0378$ ($F=4.31
 
 The 20.7\,ms threshold is a classic artifact of data-dependent threshold selection. It cannot be cited as a confirmed operational guardrail.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/latency_breakpoint_segmented_fit.png}
+\caption{Segmented piecewise linear regression fit of network latency versus production speed across operational modes. In Active mode, candidate breakpoint $\hat{\tau} = 20.69$\,ms yields a naive $F = 4.3127$ ($p = 0.0381$), but fails to achieve statistical significance under supremum-$F$ permutation testing ($p_{\text{perm}} = 0.1640$, FDR $q = 0.5100$).}
+\label{fig:breakpoint_fit}
+\end{figure}
+
 \subsection{Unsupervised Network Profiling (RQ4)}
-Evaluating $K$-means clustering across candidate cluster counts $k \in [2, 6]$ on standardized network features (\texttt{StandardScaler}) produces the selection ladder summarized in Table~\ref{tab:clustering_metrics} (archived in \texttt{reports/clustering\_k_selection.csv}).
+Evaluating $K$-means clustering across candidate cluster counts $k \in [2, 6]$ on standardized network features (\texttt{StandardScaler}) produces the selection ladder summarized in Table~\ref{tab:clustering_metrics} (archived in \texttt{reports/clustering\_k\_selection.csv}).
 
 \begin{table}[t]
 \caption{Multi-Cluster K-Means Evaluation on Standardized Network Telemetry ($k=2..6$)}
 \label{tab:clustering_metrics}
 \centering
-\begin{tabular}{ccccc}
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}ccccc@{}}
 \toprule
-\textbf{Cluster Count $k$} & \textbf{Inertia} & \textbf{Silhouette}\textsuperscript{\dag} & \textbf{Davies-Bouldin} & \textbf{Calinski-Harabasz} \\
+\textbf{Clusters $k$} & \textbf{Inertia} & \textbf{Silhouette}\textsuperscript{\dag} & \textbf{Davies-Bouldin} & \textbf{Calinski-Harabasz} \\
 \midrule
 $k=2$ & 125,071 & 0.3548 & 1.1871 & 59,910 \\
 $k=3$ & 79,315 & 0.3764 & 0.8687 & 76,078 \\
@@ -378,6 +402,13 @@ $k=6$ & 35,980 & 0.3745 & 0.8422 & 91,169 \\
 
 The optimal partition occurs at $k=4$, maximizing the silhouette score ($0.4063$) and minimizing the Davies-Bouldin index ($0.7690$). Due to the $\mathcal{O}(N^2)$ pairwise distance complexity across $N=100,000$ observations, silhouette scores were computed on a representative random subsample of $n=15,000$ observations (seed 42 in \texttt{src/network\_profiling.py}), whereas Inertia, Davies-Bouldin, and Calinski-Harabasz indices were evaluated over all $100,000$ points. However, silhouette scores below $0.50$ confirm that these clusters do not represent discrete physical operational regimes; rather, they represent an arbitrary geometric Voronoi partition of a continuous uniform bivariate plane.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/clustering_evaluation_k_selection.png}
+\caption{Multi-cluster K-means evaluation across candidate cluster counts $k \in [2, 6]$ showing Inertia (Elbow method), Silhouette Score (evaluated on a random subsample of $n=15,000$ observations due to $\mathcal{O}(N^2)$ pairwise distance complexity), and Davies-Bouldin Index. The optimal partition occurs at $k=4$ (Silhouette: 0.4063, Davies-Bouldin: 0.7690).}
+\label{fig:clustering_k_selection}
+\end{figure}
+
 \subsection{Supervised Predictive Modeling Ladder (RQ5)}
 Table~\ref{tab:model_ladder} presents the full empirical performance ladder across model formulations and validation splits from \texttt{reports/model\_baseline\_ladder.csv}.
 
@@ -385,14 +416,15 @@ Table~\ref{tab:model_ladder} presents the full empirical performance ladder acro
 \caption{Supervised Model Performance Ladder Across Chronological and Grouped Splits}
 \label{tab:model_ladder}
 \centering
-\small
-\begin{tabular}{llccccc}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{@{}l l c c c c >{\raggedright\arraybackslash}X@{}}
 \toprule
-\textbf{Model Formulation} & \textbf{Algorithm} & \textbf{Accuracy} & \textbf{Macro F1} & \textbf{Weighted F1} & \textbf{ROC-AUC Macro} & \textbf{Operational Interpretation} \\
+\textbf{Model Formulation} & \textbf{Algorithm} & \textbf{Accuracy} & \textbf{Macro F1} & \textbf{Weighted F1} & \textbf{ROC-AUC} & \textbf{Operational Interpretation} \\
 \midrule
 \multirow{4}{*}{\textbf{Model A (Horizon B: 30-min)}} 
- & Dummy Majority & 0.7842 & 0.2930 & 0.6894 & 0.5000 & Naive baseline \\
- & Logistic Regression & 0.2791 & 0.2321 & 0.3554 & 0.5029 & Underperforms baseline \\
+ & Dummy Majority & 0.7842 & 0.2930 & 0.6894 & 0.5000 & Naive majority class baseline \\
+ & Logistic Regression & 0.2791 & 0.2321 & 0.3554 & 0.5029 & Underperforms majority baseline \\
  & Random Forest & 0.6730 & 0.3368 & 0.6622 & 0.5068 & Near-chance discrimination \\
  & LightGBM & 0.4313 & 0.2966 & 0.5014 & 0.5073 & Near-chance discrimination \\
 \midrule
@@ -408,7 +440,7 @@ Table~\ref{tab:model_ladder} presents the full empirical performance ladder acro
  & Random Forest & 0.7024 & 0.3275 & 0.6717 & 0.4896 & Zero generalizability gain \\
  & LightGBM & 0.4435 & 0.2889 & 0.5108 & 0.4738 & Zero generalizability gain \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table*}
 
 The empirical findings are consistent across all architectures:
@@ -417,6 +449,13 @@ The empirical findings are consistent across all architectures:
     \item \textbf{Macro F1 Ceiling}: Random Forest achieves a nominal Macro F1 of $0.3368$ on Horizon B, which does not represent meaningful predictive capture of the minority classes (High efficiency recall is only $3.05\%$).
     \item \textbf{Generalization on Unseen Machines}: The small gap between seen machines ($0.3368$ Macro F1) and unseen machines ($0.3275$ Macro F1) is expected when predicting near chance; it reflects the persistence of uninformative baselines rather than authentic model generalization.
 \end{enumerate}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/shap_summary_model_a.png}
+\caption{SHAP feature attribution summary for Model A (Early Warning, Horizon B). Environmental and machine sensor features dominate attribution, while network latency and packet loss exhibit minimal predictive influence, consistent with near-chance operational efficiency classification.}
+\label{fig:shap_model_a}
+\end{figure}
 
 \section{Discussion}
 \label{sec:discussion}
