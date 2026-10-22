@@ -117,7 +117,7 @@ $$\text{Efficiency\_Status} = \begin{cases}
 \mathbf{Medium} & \text{Otherwise} 
 \end{cases}$$
 
-**Impact on Model B (Diagnosis Model):** If contemporaneous `Production_Speed_units_per_hr` and `Error_Rate_%` were included as features in Model B, any basic machine learning algorithm would trivially memorize this arithmetic rule, achieving $100\%$ accuracy while yielding zero diagnostic insight into root causes. In strict compliance with scientific integrity standards, **`Production_Speed_units_per_hr` and `Error_Rate_%` were permanently excluded from Model B**. Model B must diagnose efficiency status strictly from upstream physical drivers (network metrics, temperature, vibration, power consumption, predictive maintenance scores, and operational context).
+**Impact on Model B (Diagnosis Model):** If contemporaneous `Production_Speed_units_per_hr` and `Error_Rate_%` were included as features in Model B, any basic machine learning algorithm would trivially memorize this arithmetic rule, achieving $100\%$ accuracy while yielding zero diagnostic insight. In strict compliance with scientific integrity standards, **`Production_Speed_units_per_hr` and `Error_Rate_%` were permanently excluded from Model B**. Model B evaluates contemporaneous classification strictly from upstream physical features (network metrics, temperature, vibration, power consumption, predictive maintenance scores, and operational context), predicting near chance (ROC-AUC $\approx 0.50$).
 
 ---
 
@@ -268,12 +268,12 @@ No non-linear cliff or threshold exists for packet loss within the $0.0\%$ to $5
 
 ---
 
-## 6. Machine Learning Early Warning & Root-Cause Diagnosis
+## 6. Machine Learning Early Warning & Contemporaneous Diagnosis
 
 ### 6.1 Validation Design & Circularity Prevention
 To ensure production applicability, models were developed across two distinct operational specifications:
 1. **Model A (Early Warning):** Evaluates whether telemetry at time $t$ can forecast `Efficiency_Status` at time $t + H$. The primary dataset enforces **Horizon B ($H = 30\text{ min} \pm 10\text{ min}$, $N = 23,587$)**, with Horizon A ($N = 1$ row shift, $N = 99,950$) evaluated as a secondary check.
-2. **Model B (Diagnosis):** Identifies the root cause of the current `Efficiency_Status` at time $t$. As mandated by the Step 1 label audit, contemporaneous production speed and error rate are strictly excluded.
+2. **Model B (Diagnosis):** Evaluates contemporaneous classification of `Efficiency_Status` at time $t$. As mandated by the Step 1 label audit, contemporaneous production speed and error rate are strictly excluded. Both models predict near chance (ROC-AUC $\approx 0.50$).
 
 **Data Splitting Protocol:**
 - **Chronological Split (Known Machines):** Earliest $80\%$ of records allocated to training ($N = 18,869$ for Horizon B; $N = 79,960$ for Horizon A); final $20\%$ held out for testing ($N = 4,718$ for Horizon B; $N = 19,990$ for Horizon A).

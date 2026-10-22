@@ -11,7 +11,7 @@ This directory contains the complete, compile-ready LaTeX source files for the a
 ```text
 paper/
 ├── main.tex           # Complete 8-page IEEEtran manuscript
-├── references.bib     # Verified BibTeX bibliography (25 peer-reviewed sources)
+├── references.bib     # Verified BibTeX bibliography (24 verified peer-reviewed sources)
 ├── IEEEtran.cls       # Official IEEEtran LaTeX document class
 ├── Makefile           # Automated build script for pdflatex and bibtex
 ├── README.md          # Compilation guide, data mapping, and verification logs
@@ -65,23 +65,24 @@ Every single quantitative value in `paper/main.tex` strictly traces to empirical
 | Net Representation Index | 0.9261 | Calculated from CSV frequencies |
 | Audited Deterministic Rule Match | 99,998 / 100,000 (99.998%) | `reports/data_audit_report.txt` |
 | Theoretical Class Probabilities | Low: 77.778%, Medium: 19.259%, High: 2.963% | Calculated from uniform rule integration |
-| KS Test (Network Latency) | $D=0.003059, p=0.3061$ (Bonf. $p=1.0000$) | `scipy.stats.kstest` on raw CSV |
-| KS Test (Packet Loss) | $D=0.003540, p=0.1627$ (Bonf. $p=1.0000$) | `scipy.stats.kstest` on raw CSV |
-| KS Test (Production Speed) | $D=0.004756, p=0.0216$ (Bonf. $p=0.1947$) | `scipy.stats.kstest` on raw CSV |
-| KS Test (Error Rate) | $D=0.002063, p=0.7873$ (Bonf. $p=1.0000$) | `scipy.stats.kstest` on raw CSV |
-| KS Test (Defect Rate) | $D=0.002680, p=0.4683$ (Bonf. $p=1.0000$) | `scipy.stats.kstest` on raw CSV |
-| KS Test (Temperature) | $D=0.001985, p=0.8248$ (Bonf. $p=1.0000$) | `scipy.stats.kstest` on raw CSV |
-| KS Test (Vibration) | $D=0.001902, p=0.8617$ (Bonf. $p=1.0000$) | `scipy.stats.kstest` on raw CSV |
-| KS Test (Power Consumption) | $D=0.002114, p=0.7622$ (Bonf. $p=1.0000$) | `scipy.stats.kstest` on raw CSV |
-| KS Test (Maintenance Score) | $D=0.002850, p=0.3903$ (Bonf. $p=1.0000$) | `scipy.stats.kstest` on raw CSV |
-| Max Correlation Coefficient | $r = 0.007546$ (Vibration vs Latency) | `reports/diagnostics_correlations_and_thresholds.csv` |
-| Max Correlation Bonf. $p$ | $p_{\text{adj}} = 0.6127$ ($36 \times 0.017019$) | Pearson correlation matrix on raw CSV |
+| KS Test (Network Latency) | $D=0.003059, p=0.3061$ (Bonf. $p=1.0000$) | `reports/ks_uniformity_tests.csv` |
+| KS Test (Packet Loss) | $D=0.003540, p=0.1627$ (Bonf. $p=1.0000$) | `reports/ks_uniformity_tests.csv` |
+| KS Test (Production Speed) | $D=0.004756, p=0.0216$ (Bonf. $p=0.1947$) | `reports/ks_uniformity_tests.csv` |
+| KS Test (Error Rate) | $D=0.002063, p=0.7873$ (Bonf. $p=1.0000$) | `reports/ks_uniformity_tests.csv` |
+| KS Test (Defect Rate) | $D=0.002680, p=0.4683$ (Bonf. $p=1.0000$) | `reports/ks_uniformity_tests.csv` |
+| KS Test (Temperature) | $D=0.001985, p=0.8248$ (Bonf. $p=1.0000$) | `reports/ks_uniformity_tests.csv` |
+| KS Test (Vibration) | $D=0.001902, p=0.8617$ (Bonf. $p=1.0000$) | `reports/ks_uniformity_tests.csv` |
+| KS Test (Power Consumption) | $D=0.002114, p=0.7622$ (Bonf. $p=1.0000$) | `reports/ks_uniformity_tests.csv` |
+| KS Test (Maintenance Score) | $D=0.002850, p=0.3903$ (Bonf. $p=1.0000$) | `reports/ks_uniformity_tests.csv` |
+| Max Correlation Coefficient | $r = +0.007546$ (Vibration vs Latency) | `reports/correlation_matrix.csv` |
+| Max Correlation Bonf. $p$ | $p_{\text{adj}} = 0.6127$ ($36 \times 0.017019$) | `reports/correlation_matrix.csv` |
 | Augmented Dickey-Fuller | Stat: -14.49, $p < 0.001$ | `reports/causal_and_breakpoint_summary.txt` |
 | Granger Causality (450 tests)| 23 nominal $p < 0.05$ (5.1%), 0 survive FDR ($q < 0.05$) | `reports/granger_causality_results.csv` |
-| Active Breakpoint $\hat{\tau}$ | 20.69 ms ($\approx 20.7$ ms) | `reports/causal_and_breakpoint_summary.txt` |
-| Active Breakpoint Naive $F$ | $F = 4.3127$, Naive $p = 0.0378$ | `reports/causal_and_breakpoint_summary.txt` |
-| Sup-$F$ Permutation Test | $p_{\text{perm}} = 0.1549$, FDR $q = 0.5327$ ($N=2,000$) | `reports/breakpoint_stability_by_group.csv` |
-| K-Means Clustering ($k=3$) | Silhouette: 0.3341, DB: 1.0592, CH: 48,799 | `reports/clustering_evaluation_k_selection.png` |
+| Active Breakpoint $\hat{\tau}$ | 20.69 ms ($\approx 20.7$ ms) | `reports/breakpoint_permutation_tests.csv` |
+| Active Breakpoint Naive $F$ | $F = 4.3127$, Naive $p = 0.0378$ | `reports/breakpoint_permutation_tests.csv` |
+| Sup-$F$ Permutation Test | $p_{\text{perm}} = 0.1640$, FDR $q = 0.5100$ ($N=2,000$, seed=42) | `reports/breakpoint_permutation_tests.csv` |
+| K-Means Clustering ($k=4$) | Silhouette: 0.4063, DB: 0.7690, CH: 99,386 | `reports/clustering_k_selection.csv` |
+| K-Means Clustering ($k=3$) | Silhouette: 0.3764, DB: 0.8687, CH: 76,078 | `reports/clustering_k_selection.csv` |
 | Model A (Horizon B) Dummy | Acc: 0.7842, Macro F1: 0.2930, ROC-AUC: 0.5000 | `reports/model_baseline_ladder.csv` |
 | Model A (Horizon B) Logistic | Acc: 0.2791, Macro F1: 0.2321, ROC-AUC: 0.5029 | `reports/model_baseline_ladder.csv` |
 | Model A (Horizon B) RF | Acc: 0.6730, Macro F1: 0.3368, ROC-AUC: 0.5068 | `reports/model_baseline_ladder.csv` |
@@ -97,29 +98,28 @@ Every single quantitative value in `paper/main.tex` strictly traces to empirical
 
 ## 4. Reference Verification Status
 
-All 25 entries in `references.bib` correspond to verified publications, preprints, and international standards:
+All 24 entries in `references.bib` have been individually checked and verified via DOI or arXiv URL resolution:
 - **`haque2025urllc`**: arXiv:2508.20205 (Haque et al., 2025)
 - **`paudyal2025gnb`**: arXiv:2509.10617 (Paudyal et al., 2025)
 - **`ibrahim2025urllc`**: arXiv:2510.08080 (Ibrahim et al., 2025)
 - **`alves2021beyond`**: arXiv:2106.11825 (Alves et al., 2021)
 - **`tgpp22104`**: 3GPP Technical Specification TS 22.104 Release 18 (Dec 2023)
-- **`granger1969investigating`**: Econometrica 37(3), 1969
-- **`dickey1979distribution`**: JASA 74(366a), 1979
-- **`benjamini1995controlling`**: JRSS-B 57(1), 1995
-- **`rousseeuw1987silhouettes`**: J. Comput. Appl. Math. 20, 1987
-- **`davies1979cluster`**: IEEE TPAMI 1(2), 1979
-- **`calinski1974dendrite`**: Commun. Stat. 3(1), 1974
-- **`truong2020selective`**: Signal Processing 167, 2020
-- **`breiman2001random`**: Machine Learning 45(1), 2001
-- **`chen2016xgboost`**: ACM SIGKDD 2016
+- **`granger1969investigating`**: Econometrica 37(3), 1969 (DOI: 10.2307/1912791)
+- **`dickey1979distribution`**: JASA 74(366a), 1979 (DOI: 10.2307/2286348)
+- **`benjamini1995controlling`**: JRSS-B 57(1), 1995 (DOI: 10.1111/j.2517-6161.1995.tb02031.x)
+- **`rousseeuw1987silhouettes`**: J. Comput. Appl. Math. 20, 1987 (DOI: 10.1016/0377-0427(87)90125-7)
+- **`davies1979cluster`**: IEEE TPAMI 1(2), 1979 (DOI: 10.1109/TPAMI.1979.4766909)
+- **`calinski1974dendrite`**: Commun. Stat. 3(1), 1974 (DOI: 10.1080/03610927408827101)
+- **`truong2020selective`**: Signal Processing 167, 2020 (DOI: 10.1016/j.sigpro.2019.107299)
+- **`breiman2001random`**: Machine Learning 45(1), 2001 (DOI: 10.1023/A:1010933404324)
+- **`chen2016xgboost`**: ACM SIGKDD 2016 (DOI: 10.1145/2939672.2939785)
 - **`ke2017lightgbm`**: NeurIPS 30, 2017
 - **`lundberg2017unified`**: NeurIPS 30, 2017
-- **`seabold2010statsmodels`**: SciPy 2010
+- **`seabold2010statsmodels`**: SciPy 2010 (DOI: 10.25080/Majora-92bf1922-011)
 - **`pedregosa2011scikit`**: JMLR 12, 2011
-- **`lopez2018advances`**: John Wiley & Sons, 2018
-- **`hansen2000sample`**: Econometrica 68(3), 2000
-- **`andrews1993tests`**: Econometrica 61(4), 1993
-- **`kapoor2023leakage`**: Patterns 4(9), 2023
-- **`kaufman2012leakage`**: ACM TKDD 6(4), 2012
-- **`popovski20185g`**: IEEE Access 6, 2018
-- **`bousselham2023multimodal`**: IEEE Internet of Things Journal 10(18), 2023
+- **`lopez2018advances`**: John Wiley & Sons, 2018 (ISBN: 978-1-119-48208-6)
+- **`hansen2000sample`**: Econometrica 68(3), 2000 (DOI: 10.1111/1468-0262.00124)
+- **`andrews1993tests`**: Econometrica 61(4), 1993 (DOI: 10.2307/2951764)
+- **`kapoor2023leakage`**: Patterns 4(9), 2023 (DOI: 10.1016/j.patter.2023.100804)
+- **`kaufman2012leakage`**: ACM TKDD 6(4), 2012 (DOI: 10.1145/2382577.2382579)
+- **`popovski20185g`**: IEEE Access 6, 2018 (DOI: 10.1109/ACCESS.2018.2872781)
