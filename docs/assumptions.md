@@ -80,14 +80,13 @@ This document tracks all formal assumptions, parameter selections, empirical aud
 
 ## 3. Temporal Causal & Breakpoint Analysis Findings (Step 3)
 - **Scientific Reconciled Headline Finding (Condition 1)**:
-  - **Contemporaneous vs Predictive Contrast**: Network latency and manufacturing throughput demonstrate a statistically significant **contemporaneous nonlinear association** (specifically an active-load threshold at 20.7 ms). However, historical latency exhibits **no predictive precedence or forecasting power** over future speed beyond speed's own autoregressive history (0 out of 450 Granger tests survive Benjamini-Hochberg FDR control).
-  - This divergence indicates that network degradation impacts manufacturing processes immediately within the active operational window, but does not leave an enduring predictive signal that forecasts future state across multi-minute time gaps.
+  - **Temporal & Breakpoint Findings**: Historical latency exhibits **no predictive precedence or forecasting power** over future speed beyond speed's own autoregressive history (0 out of 450 Granger tests survive Benjamini-Hochberg FDR control). Furthermore, candidate contemporaneous breakpoint detection yields null or exploratory results once multiple testing is accounted for.
   - Granger causality reflects temporal predictive precedence, not physical or mechanical causation; unmeasured physical confounders (e.g., ambient voltage fluctuations, raw material inconsistency, tool wear) are acknowledged in the Limitations.
-- **Breakpoint Detection & Headline Threshold (Condition 2)**:
-  - **Primary Headline Threshold: 20.7 ms in `Active` Mode** ($F = 4.31, p = 0.038$). Under active production load, machine throughput exhibits a downward inflection point once latency exceeds 20.7 ms.
-  - **Caveat on Latency Sensitivity Score (Active Mode)**: The segmented piecewise fit yields a pre-threshold slope of $+0.2123$ units/hr per ms and a post-threshold slope of $-0.0940$ units/hr per ms ($\Delta \beta = -0.3063$). Note that this positive pre-threshold slope is counterintuitive and occurs entirely within an overall near-zero linear correlation regime (Step 4: $|r| < 0.015$). This should be recognized as statistical noise or unobserved confounding in the lower latency window, **not** empirical evidence that increasing network latency improves manufacturing throughput.
-  - **Regime Instability as a Finding**: The pooled dataset yielded a nominal breakpoint of 41.2 ms with an excessively wide 95% block bootstrap confidence interval of [6.0, 45.2] ms. This broad dispersion confirms that operational mode heterogeneity masks critical threshold dynamics. Hence, reporting a single global pooled threshold is statistically invalid; operational thresholding must be stratified by machine state.
-  - `Idle` Mode (27.5 ms, $F = 1.28$, not significant) and `Maintenance` Mode (25.5 ms, $F = 3.24$) tolerate substantially higher latency variance without throughput degradation.
+- **Breakpoint Detection & Candidate Threshold (Condition 2)**:
+  - **Exploratory Candidate Threshold: 20.7 ms in `Active` Mode** (naive $F = 4.31, p = 0.038$; sup-F permutation $p = 0.155$, FDR $q = 0.533$). Under active production load, machine throughput exhibits an exploratory candidate inflection point ($\Delta \beta = -0.3063$), but this threshold does not survive permutation multiple-testing control and is strictly exploratory.
+  - **Caveat on Latency Sensitivity Score (Active Mode)**: The segmented piecewise fit yields a pre-threshold slope of $+0.2123$ units/hr per ms and a post-threshold slope of $-0.0940$ units/hr per ms ($\Delta \beta = -0.3063$). Note that this positive pre-threshold slope is counterintuitive and occurs entirely within an overall near-zero linear correlation regime (Step 4: $|r| < 0.008$). This should be recognized as statistical noise or an artifact of candidate quantile selection, **not** empirical evidence that increasing network latency improves manufacturing throughput.
+  - **Regime Instability as a Finding**: The pooled dataset yielded a nominal breakpoint of 41.2 ms with an excessively wide 95% block bootstrap confidence interval of [6.0, 45.2] ms (permutation $p = 0.755$). This broad dispersion confirms that reporting a single global pooled threshold in this dataset is statistical noise.
+  - `Idle` Mode (27.5 ms, $F = 1.28$, permutation $p = 0.695$) and `Maintenance` Mode (25.5 ms, $F = 3.24$, permutation $p = 0.266$) exhibit no statistically significant breakpoints.
 - **Packet Loss Breakpoint Finding**:
   - Telemetry packet loss is uniformly distributed across [0%, 5%], with quality control defect rates remaining flat (~5.0%) across all packet loss deciles.
   - No statistically significant non-linear breakpoint or cliff exists for packet loss; quality metrics remain stable across the observed 0–5% range.
@@ -101,28 +100,28 @@ This document tracks all formal assumptions, parameter selections, empirical aud
 - **Model B Allowed Features (Strictly Enforced)**:
   - Allowed: `Network_Latency_ms`, `Packet_Loss_%`, `Network_Risk_Index`, `Network_Cluster`, `latency_lag_1`, `latency_lag_2`, `packet_loss_lag_1`, `packet_loss_lag_2`, `latency_roll_mean_3`, `latency_roll_std_3`, `packet_loss_roll_mean_3`, `Temperature_C`, `Vibration_Hz`, `Power_Consumption_kW`, `Predictive_Maintenance_Score`, `Quality_Control_Defect_Rate_%`, `Operation_Mode`, `Machine_ID`.
   - Strictly Excluded: `Production_Speed_units_per_hr` and `Error_Rate_%` (to prevent trivial label formula leakage).
-  - Performance Ceiling Note: The resulting macro-F1 (~0.33) reflects genuine upstream root-cause predictability from physical sensors rather than formula inversion.
+  - Performance Ceiling Note: Across all models, ROC-AUC remains $\approx 0.50$ (near chance). Model B's macro-F1 (~0.32–0.33) reflects chance-level behavior rather than genuine physical sensor root-cause predictability.
 - **Crucial Scientific Conclusion (Baseline Reality Check)**:
-  - **No model substantially outperforms the majority-class baseline** (Dummy Majority Accuracy: 78.42%, Weighted-F1: 0.6894).
+  - **No model substantially outperforms the majority-class baseline** (Dummy Majority Accuracy: 78.42%, Weighted-F1: 0.6894, ROC-AUC: 0.5000).
   - This directly aligns with and reinforces the Step 3 null Granger causality finding (0 out of 450 tests surviving Benjamini-Hochberg FDR control).
-  - Network telemetry, vibration, and temperature sensors carry very weak forward-looking predictive power for discrete manufacturing efficiency status. Artificially forcing minority class recall via class-weighting causes precision to collapse to the natural background prevalence (~3.0%), generating massive false alarms without producing net operational predictive lift.
+  - Network telemetry, vibration, and temperature sensors carry near-chance forward-looking predictive power for discrete manufacturing efficiency status. Artificially forcing minority class recall via class-weighting causes precision to collapse to the natural background prevalence (~3.0%), generating massive false alarms without producing net operational predictive lift.
 - **Reframed Production Model Selection Criterion & Justification (Honest Limitations Reporting)**:
   - **Selected Production Artifact**: `RandomForestClassifier` (balanced class weighting).
   - **Reframed Selection Rationale**: In industrial plant operations, alarm credibility is paramount. Random Forest was selected strictly because it **avoids catastrophic false alarms**, and **NOT** because it meaningfully detects the rare High-efficiency class.
     - Specifically, Random Forest identified only **4 true positives out of 99 predictions** across 131 actual High-efficiency events in the chronological test set (Recall_High = 3.05%, Precision_High = 4.04%, with 127 missed events / false negatives). This is a stark predictive limitation that must be reported transparently, not framed as a model victory.
-    - **LightGBM Alternative**: LightGBM is retained and documented as the higher-recall / higher-false-alarm alternative: it captures 83 of 131 High-efficiency events (Recall_High = 63.36% or 20.61% under balanced thresholding), but at the unacceptable cost of 2,735 false positives out of 2,818 alerts (Precision_High = 2.95%, which is slightly worse than raw random guessing at 2.986% background prevalence).
-    - Random Forest attains superior overall Macro-F1 (0.3368 vs 0.2966) and Weighted-F1 (0.6622 vs 0.5014), and preserves reliable Low-efficiency risk detection (Recall_Low = 81.81%, Precision_Low = 78.54%) without overwhelming plant engineers with spurious alarms.
+    - **LightGBM Alternative**: LightGBM is retained and documented as the higher-recall / higher-false-alarm alternative: it captures 27 of 131 High-efficiency events (Recall_High = 20.61%), but at the cost of 889 false positives out of 916 alerts (Precision_High = 2.95%, which is slightly worse than raw random guessing at 2.986% background prevalence).
+    - Random Forest preserves majority-class filtering without flooding plant engineers with spurious alarms.
 - **Baseline Ladder Summary (Chronological Test Set, Horizon B)**:
-  - Dummy Majority: Accuracy = 78.42%, Macro-F1 = 0.2930, Precision_High = 0.0%, Recall_High = 0.0%, Precision_Low = 78.42%, Recall_Low = 100.0%
-  - Logistic Regression (Class-Weighted): Accuracy = 27.91%, Macro-F1 = 0.2321, Precision_High = 3.02%, Recall_High = 46.56%, Precision_Low = 79.68%, Recall_Low = 25.97%
-  - Random Forest (Class-Weighted): Accuracy = 67.30%, Macro-F1 = 0.3368, Precision_High = 4.04%, Recall_High = 3.05%, Precision_Low = 78.54%, Recall_Low = 81.81%
-  - LightGBM (Class-Weighted): Accuracy = 43.13%, Macro-F1 = 0.2966, Precision_High = 2.95%, Recall_High = 20.61%, Precision_Low = 79.15%, Recall_Low = 45.05%
+  - Dummy Majority: Accuracy = 78.42%, Macro-F1 = 0.2930, ROC-AUC = 0.5000, Precision_High = 0.0%, Recall_High = 0.0%, Precision_Low = 78.42%, Recall_Low = 100.0%
+  - Logistic Regression (Class-Weighted): Accuracy = 27.91%, Macro-F1 = 0.2321, ROC-AUC = 0.5029, Precision_High = 3.02%, Recall_High = 46.56%, Precision_Low = 79.68%, Recall_Low = 25.97%
+  - Random Forest (Class-Weighted): Accuracy = 67.30%, Macro-F1 = 0.3368, ROC-AUC = 0.5068, Precision_High = 4.04%, Recall_High = 3.05%, Precision_Low = 78.54%, Recall_Low = 81.81%
+  - LightGBM (Class-Weighted): Accuracy = 43.13%, Macro-F1 = 0.2966, ROC-AUC = 0.5073, Precision_High = 2.95%, Recall_High = 20.61%, Precision_Low = 79.15%, Recall_Low = 45.05%
 - **Seen vs. Unseen Machine Generalization Gap**:
-  - Chronological Split (Known Machines): Random Forest Macro-F1 = 0.3368.
-  - Machine-Grouped Split (Unseen Machines): Random Forest Macro-F1 = 0.3275.
-  - Generalization Gap: $\Delta = 0.0093$ (less than 1% degradation), proving models generalize cleanly to new factory equipment.
+  - Chronological Split (Known Machines): Random Forest Macro-F1 = 0.3368, ROC-AUC = 0.5068.
+  - Machine-Grouped Split (Unseen Machines): Random Forest Macro-F1 = 0.3275, ROC-AUC = 0.4896.
+  - Generalization Gap: $\Delta = 0.0093$. Because models operate near chance on both splits, no generalization gap is expected, and this minimal delta does not constitute evidence of model generalization.
 - **Explainability (SHAP)**:
-  - SHAP TreeExplainer confirms that Network Risk Index, Latency, and Predictive Maintenance Score are the dominant contributors to Early Warning risk classifications.
+  - Because models perform near chance, SHAP attributions represent explanations of an uninformative classifier rather than confirmed physical root causes.
 
 ---
 

@@ -176,7 +176,7 @@ with col1:
     st.metric(
         "Avg Network Latency",
         f"{avg_lat:.2f} ms",
-        delta=f"{avg_lat - 20.7:.1f} ms vs Active Threshold",
+        delta=f"{avg_lat - 20.7:.1f} ms vs Active BP",
         delta_color="inverse",
     )
 with col2:
@@ -196,9 +196,9 @@ with col3:
 with col4:
     active_bp = 20.7
     st.metric(
-        "Active Tolerance Limit",
+        "Active Breakpoint",
         f"{active_bp} ms",
-        delta="Statistically Significant (p=0.038)",
+        delta="Exploratory (perm p=0.155)",
     )
 with col5:
     st.metric(
@@ -248,7 +248,7 @@ with tab1:
             x=resampled["Timestamp"], y=resampled["Packet_Loss_%"] * 10,
             name="Packet Loss (x10 %)", line=dict(color="#ff9900", width=1.5, dash="dot")
         ))
-        fig_ts.add_hline(y=20.7, line_dash="dash", line_color="red", annotation_text="Active Threshold (20.7 ms)")
+        fig_ts.add_hline(y=20.7, line_dash="dash", line_color="#f59e0b", annotation_text="Active Breakpoint (20.7 ms, Exploratory)")
         fig_ts.update_layout(
             title="6-Hour Rolling Network Telemetry Timeline",
             xaxis_title="Timeline",
@@ -331,13 +331,14 @@ with tab2:
             template="plotly_dark",
             opacity=0.4,
         )
-        fig_scat.add_vline(x=20.7, line_dash="dash", line_color="#ef4444", annotation_text="Active Threshold (20.7 ms)")
+        fig_scat.add_vline(x=20.7, line_dash="dash", line_color="#f59e0b", annotation_text="Active Breakpoint (20.7 ms, Exploratory)")
         fig_scat.update_layout(xaxis_title="Network Latency (ms)", yaxis_title="Speed (units/hr)", height=400)
         st.plotly_chart(fig_scat, use_container_width=True)
 
     st.info(
         "💡 **Key Analytical Finding**: Production speed drops by **3.084 units/hr** between Tier 0 (Optimal: Latency 13.4 ms) "
-        "and Tier 3 (Critical: Latency 37.7 ms). In active production mode, the deceleration inflection triggers precisely at **20.7 ms**."
+        "and Tier 3 (Critical: Latency 37.7 ms). In active production mode, an exploratory breakpoint candidate appears at **20.7 ms** "
+        "(sup-F permutation p=0.155, not statistically significant after multiple testing control)."
     )
 
 
@@ -414,9 +415,9 @@ with tab4:
     | :--- | :---: | :---: | :---: | :---: |
     | **Tactile Interaction / Teleoperation** | **0.5 ms** | 99.999% (5-nines) | Min Latency = 1.00 ms | ⚠️ Exceeds Bound |
     | **General URLLC Target** | **~1.0 ms** | 99.999% (5-nines) | Tier 0 Mean = 13.41 ms | ⚠️ Exceeds Bound |
-    | **Discrete Automation (Motion Control)** | **10.0 ms** | 99.99% (4-nines) | Active Inflection = **20.7 ms** | 🟡 Borderline Tolerance |
+    | **Discrete Automation (Motion Control)** | **10.0 ms** | 99.99% (4-nines) | Active Candidate BP = **20.7 ms (Exploratory)** | 🟡 Borderline Reference |
     | **High Voltage Power Distribution** | **5.0 ms** | 99.9999% (6-nines) | Min Latency = 1.00 ms | ⚠️ Exceeds Bound |
-    | **Medium Voltage Electricity** | **25.0 ms** | 99.9% (3-nines) | Active Inflection = **20.7 ms** | ✅ Compliant (< 25 ms) |
+    | **Medium Voltage Electricity** | **25.0 ms** | 99.9% (3-nines) | Active Candidate BP = **20.7 ms (Exploratory)** | ✅ Within Range (< 25 ms) |
     | **Process Automation (Remote Control)** | **50.0 ms** | 99.9% (3-nines) | Max Latency = 50.00 ms | ✅ Compliant (≤ 50 ms) |
     | **Process Automation (Plant Monitoring)**| **50.0 ms** | 99.9% (3-nines) | Fleet Mean = 25.56 ms | ✅ Fully Compliant |
     """)
@@ -518,7 +519,7 @@ with tab5:
                 <div style='font-size: 0.9rem; color: #94a3b8;'>Simulated Network Risk Index</div>
                 <div style='font-size: 1.8rem; font-weight: 700; color: {risk_color};'>{sim_risk:+.3f}</div>
                 <div style='font-size: 0.85rem; color: #cbd5e1; margin-top: 4px;'>
-                    Active Threshold Status: <b>{'🟢 Compliant (<= 20.7 ms)' if sim_lat <= 20.7 else '🔴 Exceeds Limit (> 20.7 ms)'}</b>
+                    Active Breakpoint Reference: <b>{'🟢 <= 20.7 ms' if sim_lat <= 20.7 else '🟡 > 20.7 ms (Exploratory)'}</b>
                 </div>
             </div>
             """, unsafe_allow_html=True)

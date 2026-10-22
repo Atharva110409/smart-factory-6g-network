@@ -46,9 +46,9 @@ Fleet Cost of Severe Network Degradation (Tier 0 Optimal vs. Tier 3 Degraded) - 
 
 ## 3. Four Concrete Operational Recommendations
 
-### Recommendation 1: Treat the Active-Mode Latency Guardrail ($\le 20.0\text{ ms}$) as Exploratory
-- **Action:** If preliminary Quality of Service (QoS) slice alerts are established for machines in `Active` mode, treat the **$20.0\text{ ms}$ threshold as an exploratory operational benchmark**.
-- **Justification & Headline Reconciliation:** While active machining exhibits a candidate inflection at $20.7\text{ ms}$, this threshold does not survive sup-F permutation testing ($p = 0.155$, FDR $q = 0.533$). It should be treated as an exploratory operating guideline rather than an established physical limit. Machines in `Idle` or `Maintenance` tolerate higher latency with no throughput penalty.
+### Recommendation 1: Treat the Active-Mode Breakpoint ($20.7\text{ ms}$) as Strictly Exploratory
+- **Action:** Do not enforce hard operational latency guardrails or QoS alarms at $20.0\text{--}20.7\text{ ms}$; treat the candidate breakpoint as an exploratory analytical finding.
+- **Justification:** While active machining exhibits a candidate slope inflection at $20.7\text{ ms}$, this threshold does not survive sup-F permutation testing ($p = 0.155$, Benjamini-Hochberg FDR $q = 0.533$). It is a methodological candidate from data-chosen search rather than a confirmed physical cliff. Formal operational guardrails should not be enforced without empirical validation on real-world physical telemetry. Machines in `Idle` or `Maintenance` tolerate higher latency with no throughput impact.
 
 ### Recommendation 2: Conditionally Re-Evaluate Capital Expenditure on Sub-5ms Radio Over-Engineering (Requires Validation on Real Data)
 - **Action:** Conditionally defer vendor proposals for multi-million-dollar sub-$5\text{ ms}$ 6G radio upgrades for standard discrete manufacturing cells, pending validation on real-world factory telemetry with sub-second resolution and physical operational variables.

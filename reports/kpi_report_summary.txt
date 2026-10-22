@@ -26,8 +26,8 @@ Formula: 0.5 * z(latency) + 0.5 * z(packet_loss)
 
 4. NETWORK TOLERANCE THRESHOLDS
 --------------------------------------------------------------------------------
-- Primary Active Production Threshold: 20.7 ms (F = 4.31, p < 0.05)
-- Pooled Headline Threshold: 41.2 ms (95% Block Bootstrap CI: [6.0, 45.2] ms)
+- Exploratory Active Production Breakpoint: 20.7 ms (naive F = 4.31, permutation p = 0.155, exploratory)
+- Pooled Headline Threshold: 41.2 ms (95% Block Bootstrap CI: [6.0, 45.2] ms, permutation p = 0.755)
 - Packet Loss Threshold: None (Continuous flat response across 0% to 5%)
 
 5. ESTIMATED COST OF INSTABILITY (Tier 0 Optimal vs Tier 3 Degraded)
