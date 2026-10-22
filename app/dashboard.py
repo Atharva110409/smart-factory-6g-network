@@ -198,7 +198,7 @@ with col4:
     st.metric(
         "Active Breakpoint",
         f"{active_bp} ms",
-        delta="Exploratory (perm p=0.155)",
+        delta="Exploratory (perm p=0.1640)",
     )
 with col5:
     st.metric(
@@ -338,7 +338,7 @@ with tab2:
     st.info(
         "💡 **Key Analytical Finding**: Production speed drops by **3.084 units/hr** between Tier 0 (Optimal: Latency 13.4 ms) "
         "and Tier 3 (Critical: Latency 37.7 ms). In active production mode, an exploratory breakpoint candidate appears at **20.7 ms** "
-        "(sup-F permutation p=0.155, not statistically significant after multiple testing control)."
+        "(sup-F permutation p=0.1640, not statistically significant after multiple testing control)."
     )
 
 

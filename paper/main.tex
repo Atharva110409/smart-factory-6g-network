@@ -1,6 +1,5 @@
 \documentclass[conference]{IEEEtran}
 \IEEEoverridecommandlockouts
-% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
 \usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{algorithmic}
@@ -21,6 +20,9 @@
 \renewcommand{\dbltopfraction}{0.95}
 \renewcommand{\dblfloatpagefraction}{0.85}
 
+\let\oldbibliography\thebibliography
+\renewcommand{\thebibliography}[1]{\oldbibliography{#1}\setlength{\itemsep}{0.5pt plus 0.5pt}\setlength{\parsep}{0pt}}
+
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
@@ -36,7 +38,7 @@ Email: \IEEEauthorrefmark{1}author.one@example.org, \IEEEauthorrefmark{2}author.
 \maketitle
 
 \begin{abstract}
-The paradigm of Industry 5.0 and smart manufacturing envisions pervasive integration of 6G Ultra-Reliable Low-Latency Communication (URLLC) to drive real-time closed-loop control and autonomous cyber-physical coordination. However, applied machine learning (ML) models evaluating network telemetry frequently suffer from methodological vulnerabilities, including temporal data leakage, target contamination, and unvalidated synthetic benchmark assumptions. In this paper, we propose an end-to-end, leakage-safe temporal-evidence pipeline for auditing network telemetry and quantifying its causal and predictive influence on industrial manufacturing efficiency. Through comprehensive Kolmogorov-Smirnov (KS) goodness-of-fit testing across nine industrial features, we reveal that the studied enterprise telemetry dataset ($N=100,000$ observations across 50 machines over 68.4 days) is statistically consistent with independent uniform generation; no pairwise feature correlation survives Bonferroni correction across all 36 pairs (maximum $|r|=0.0075$ between Vibration and Network Latency, uncorrected $p=0.0170$, adjusted $p=0.6127$). While a naive segmented regression search suggests a latency breakpoint at 20.7\,ms ($F=4.3127$, naive asymptotic $p=0.0381$), a rigorous supremum-$F$ permutation test ($N=2,000$, seed=42) reveals $p=0.1640$ (FDR $q=0.5100$), establishing the threshold as exploratory rather than confirmatory. Utilizing leak-free temporal and machine-grouped validation splits, we benchmark Random Forest and LightGBM models against naive baselines: network telemetry achieves near-chance classification discrimination (ROC-AUC 0.4949--0.5073) for composite efficiency, failing to outperform random guessing. Our findings highlight the critical necessity of rigorous data audits and leak-free temporal benchmarking in smart factory research.
+The paradigm of Industry 5.0 and smart manufacturing envisions pervasive integration of 6G Ultra-Reliable Low-Latency Communication (URLLC) to drive real-time closed-loop control and autonomous cyber-physical coordination. However, applied machine learning (ML) models evaluating network telemetry frequently suffer from methodological vulnerabilities, including temporal data leakage, target contamination, and unvalidated synthetic benchmark assumptions. In this paper, we propose an end-to-end, leakage-safe temporal-evidence pipeline for auditing network telemetry and quantifying its causal and predictive influence on industrial manufacturing efficiency. Through comprehensive Kolmogorov-Smirnov (KS) goodness-of-fit testing across nine industrial features, we reveal that the studied industrial telemetry dataset ($N=100,000$ observations across 50 machines over 68.4 days) shows no evidence against continuous uniform generation; no pairwise feature correlation survives Bonferroni correction across all 36 pairs (maximum $|r|=0.0075$ between Vibration and Network Latency, uncorrected $p=0.0170$, adjusted $p=0.6127$), demonstrating absence of linear dependence. While a naive segmented regression search suggests an Active-mode latency breakpoint at 20.7\,ms ($F=4.3127$, naive asymptotic $p=0.0378$), a rigorous supremum-$F$ permutation test ($N=2,000$, seed=42) reveals $p=0.1640$ (FDR $q=0.5100$), establishing the threshold as exploratory rather than confirmatory. Under the permutation null distribution, the naive test rejects the null at nominal $\alpha=0.05$ in $20.45\%$ of realizations (409/2,000), proving a more than fourfold inflation of type-I error. Utilizing leak-free temporal and machine-grouped validation splits, we benchmark Random Forest and LightGBM models against naive baselines: network telemetry achieves near-chance classification discrimination (ROC-AUC 0.4738--0.5073) for composite efficiency, failing to outperform random guessing. Our findings highlight the critical necessity of rigorous data audits and leak-free temporal benchmarking in smart factory research.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -49,17 +51,17 @@ Industrial IoT, 6G URLLC, Predictive Maintenance, Temporal Leakage, Statistical 
 \subsection{The Promise: 6G URLLC in Industry 4.0/5.0}
 The convergence of advanced telecommunications and industrial automation forms the core infrastructure of Industry 4.0 and 5.0. Future Sixth-Generation (6G) wireless communication networks promise to deliver sub-millisecond round-trip latencies, extreme jitter bounds, and block reliability rates exceeding $99.99999\%$ ($10^{-7}$ block error rate)~\cite{haque2025urllc, ibrahim2025urllc}. In mission-critical cyber-physical production systems (CPPS), such Ultra-Reliable Low-Latency Communication (URLLC) capabilities are designed to underpin closed-loop robotic cell collaboration, distributed programmable logic controllers (PLCs), edge-native computer vision, and real-time automated guided vehicle (AGV) routing~\cite{paudyal2025gnb, alves2021beyond}. 
 
-Standardization bodies, notably 3GPP in Technical Specification TS 22.104~\cite{tgpp22104}, have articulated precise communication service requirements for vertical domains, specifying end-to-end latency tolerances between 0.5\,ms and 20\,ms for motion control and machine interaction. In parallel, smart factory operators increasingly ingest wireless telemetry (e.g., latency, jitter, packet loss) alongside operational technology (OT) machine sensors (e.g., temperature, vibration, power consumption) into predictive artificial intelligence pipelines to forecast production throughput and avoid costly operational downtime.
+Standardization bodies, notably 3GPP in Technical Specification TS 22.104~\cite{tgpp22104}, have articulated precise communication service requirements for vertical domains, specifying end-to-end latency tolerances and message transfer intervals across diverse motion control and machine interaction operational scenarios (e.g., Clause 5.1.1 and Table 5.1.1-1). In parallel, smart factory operators increasingly ingest wireless telemetry (e.g., latency, jitter, packet loss) alongside operational technology (OT) machine sensors (e.g., temperature, vibration, power consumption) into predictive machine learning pipelines to forecast production throughput and avoid costly operational downtime.
 
 \subsection{The Problem: Data Leakage and Optimistic Evaluation}
-Despite significant investments in smart manufacturing analytics, a profound reproducibility crisis looms over applied predictive modeling~\cite{kapoor2023leakage}. Recent methodological surveys demonstrate that a dominant fraction of published smart factory and IoT machine learning architectures report inflated classification accuracies due to subtle forms of data leakage~\cite{kaufman2012leakage}. Specifically, two vulnerabilities are rampant:
+Despite significant investments in smart manufacturing analytics, a profound reproducibility crisis affects applied predictive modeling~\cite{kapoor2023leakage}. Methodological surveys across data mining and applied machine learning demonstrate that published predictive architectures frequently report inflated classification performance due to subtle forms of data leakage~\cite{kaufman2012leakage, kapoor2023leakage}. Specifically, two vulnerabilities are rampant:
 \begin{enumerate}
     \item \textbf{Temporal Autocorrelation and Group Contamination}: Standard random $K$-fold cross-validation mixes temporally adjacent observations across train and test partitions. When machines operate under continuous autoregressive processes, random splits leak temporal dependencies, causing models to memorize specific time-series trajectories rather than generalizing to unseen temporal horizons~\cite{lopez2018advances}.
     \item \textbf{Target Contamination / Proxy Feature Leakage}: Target labels such as ``Overall Equipment Efficiency'' (OEE) or categorical ``Operational Efficiency'' are frequently derived as deterministic or thresholded composite functions of raw operational features (e.g., error counts, defect counts, production rates). Including raw or weakly masked components of the composite label as predictive covariates creates circular tautologies where ML models merely invert the labeling heuristic rather than learning physical degradation phenomena.
 \end{enumerate}
 
 \subsection{The Reality Gap: Synthetic Uniform Benchmarks}
-Compounding these evaluation failures, researchers and practitioners often benchmark complex predictive algorithms on public or semi-synthetic industrial datasets without verifying the underlying generative process. When synthetic benchmarks are produced via independent pseudorandom uniform sampling, physical interactions—such as network congestion directly degrading production cadence—vanish. 
+Compounding these evaluation failures, researchers and practitioners often benchmark complex predictive algorithms on public or semi-synthetic industrial datasets without verifying the underlying generative process. When synthetic benchmarks are produced via independent pseudorandom uniform sampling, physical interactions---such as network congestion directly degrading production cadence---vanish. 
 
 Treating such datasets as empirical industrial telemetry leads to erroneous conclusions: data-mining algorithms may detect spurious statistical associations, cluster continuous noise into artificial operational ``regimes,'' and report deceptive structural breakpoints.
 
@@ -75,60 +77,54 @@ To address these pervasive challenges, this investigation establishes a systemat
 \textbf{ID} & \textbf{Core Investigation} \\
 \midrule
 \textbf{RQ1} & What is the true statistical generative distribution of the industrial telemetry data, and does it exhibit authentic cross-feature physical correlations? \\
-\addlinespace[2pt]
 \textbf{RQ2} & Do network telemetry metrics (latency, packet loss) demonstrate temporal stationarity and causal precedence over production speed? \\
-\addlinespace[2pt]
 \textbf{RQ3} & Are candidate structural breakpoints in network latency statistically robust when controlling for data-chosen threshold search? \\
-\addlinespace[2pt]
 \textbf{RQ4} & Do unsupervised network telemetry clusters reflect distinct physical operational regimes or continuous geometric partitions? \\
-\addlinespace[2pt]
 \textbf{RQ5} & What is the true predictive power of network telemetry for manufacturing efficiency under strictly leak-free temporal and machine-grouped validation? \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \subsection{Summary of Contributions}
-In this paper, we present the design, mathematical formalization, and empirical execution of a leakage-safe temporal-evidence pipeline applied to a major enterprise smart factory telemetry dataset. Our primary contributions are:
+In this paper, we present the design, mathematical formalization, and empirical execution of a leakage-safe temporal-evidence pipeline applied to a smart factory telemetry benchmark. Our primary contributions are:
 \begin{enumerate}
-    \item \textbf{Rigorous Generative and Label Auditing}: We conduct formal Kolmogorov-Smirnov (KS) goodness-of-fit testing across nine continuous telemetry variables and analyze 36 pairwise correlations. We show that the dataset is statistically consistent with independent uniform generation, and formally audit the deterministic composite logic governing efficiency labels.
-    \item \textbf{Methodological Finding on Data-Chosen Breakpoints}: We demonstrate that testing data-chosen structural breakpoints using standard naive asymptotic $F$-distributions yields severely inflated type-I errors ($F=4.3127$, naive $p=0.0381$). We implement a vectorized supremum-$F$ permutation test ($N=2,000$) that establishes the empirical threshold ($\tau=20.7$\,ms) as exploratory ($p=0.1640$, FDR $q=0.5100$), presenting this as an essential methodological standard for industrial telemetry analytics.
-    \item \textbf{Leakage-Safe Temporal Benchmarking}: We evaluate Random Forest and LightGBM across temporal and machine-grouped partitions, strictly isolating contemporaneous label components to prevent circular data leakage, and demonstrate that network telemetry yields near-chance classification (ROC-AUC $\approx 0.50$).
+    \item \textbf{Rigorous Generative and Label Auditing}: We conduct formal Kolmogorov-Smirnov (KS) goodness-of-fit testing across nine continuous telemetry variables and analyze 36 pairwise correlations. We show that the dataset exhibits no evidence against independent uniform generation, and formally audit the deterministic composite logic governing efficiency labels.
+    \item \textbf{Methodological Finding on Data-Chosen Breakpoints}: We demonstrate that testing data-chosen structural breakpoints using standard naive asymptotic $F$-distributions yields substantial type-I error inflation ($F=4.3127$, naive asymptotic $p=0.0378$). Under the permutation null of independence, the naive test rejects at nominal $\alpha=0.05$ in $20.45\%$ of realizations (409/2,000). We implement a vectorized supremum-$F$ permutation test ($N=2,000$) establishing that the Active-mode threshold ($\tau=20.69$\,ms) is exploratory ($p=0.1640$, FDR $q=0.5100$).
+    \item \textbf{Leakage-Safe Temporal Benchmarking}: We evaluate Random Forest and LightGBM across temporal and machine-grouped partitions, strictly isolating contemporaneous label components to prevent circular data leakage, and demonstrate that network telemetry yields near-chance classification (ROC-AUC 0.4738--0.5073).
     \item \textbf{Open-Source Verifiable Pipeline}: We release the entire experimental codebase, automated data auditing suites, interactive Streamlit operational dashboard, and reproducibility scripts as an open-source framework for the industrial informatics community.\footnote{\url{https://github.com/Atharva110409/smart-factory-6g-network}}
 \end{enumerate}
 
 \section{Related Work}
 \label{sec:related_work}
 
-The application of wireless network telemetry and machine learning to smart manufacturing has generated substantial literature. Table~\ref{tab:related_work} synthesizes representative studies, categorizing their domain focus, data origin, validation methodologies, and primary findings.
+The intersection of wireless communications, industrial telemetry, and predictive modeling has attracted widespread investigation. Table~\ref{tab:related_work} summarizes representative studies examining network QoS, control performance, and methodological validation in industrial environments.
 
 \begin{table*}[t]
-\caption{Taxonomy of Related Work in Industrial Network Telemetry and Predictive Analytics}
+\caption{Survey of Related Studies in Industrial Communication, Telemetry, and Predictive Validation}
 \label{tab:related_work}
 \centering
-\footnotesize
-\begin{tabularx}{\textwidth}{@{}l >{\raggedright\arraybackslash}p{2.6cm} l >{\raggedright\arraybackslash}p{2.2cm} >{\raggedright\arraybackslash}p{2.2cm} X@{}}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\textwidth}{@{}l >{\raggedright\arraybackslash}p{4.2cm} >{\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}p{2.2cm} X@{}}
 \toprule
-\textbf{Reference} & \textbf{Focus} & \textbf{Data Origin} & \textbf{Temporal Validation?} & \textbf{Leakage Addressed?} & \textbf{Primary Finding / Limitation} \\
+\textbf{Reference} & \textbf{Title Returned by DOI} & \textbf{Domain / Focus} & \textbf{Data Origin} & \textbf{Key Empirical / Methodological Finding} \\
 \midrule
-Haque \textit{et al.}~\cite{haque2025urllc} & 5G/6G URLLC Survey & Survey / Standards & N/A & N/A & Sub-millisecond jitter/latency targets for CPPS control loops. \\
-Paudyal \textit{et al.}~\cite{paudyal2025gnb} & Local Breakout URLLC & Testbed / Emulation & Time-indexed logs & Partial & Local breakout at gNB reduces latency for coordinated AGVs. \\
-Ibrahim \textit{et al.}~\cite{ibrahim2025urllc} & URLLC in Industry 5.0 & Architectural Review & N/A & N/A & Cross-layer scheduling techniques for mission-critical robotics. \\
-Alves \textit{et al.}~\cite{alves2021beyond} & Beyond 5G URLLC & Testbed / Analytical & Static cross-validation & Unaddressed & Scalable service modes for extreme industrial telemetry. \\
-Popovski \textit{et al.}~\cite{popovski20185g} & Network Slicing & Theoretical / Sim & N/A & N/A & Trade-offs between throughput, packet delay, and reliability. \\
-Kapoor \& Narayanan~\cite{kapoor2023leakage} & ML Reproducibility & Meta-Analysis & Cross-domain & Comprehensive & Data leakage affects hundreds of published scientific ML studies. \\
-L{\'o}pez de Prado~\cite{lopez2018advances} & Temporal Validation & Financial / Time Series & Purged / Embargoed & Comprehensive & Purging/embargoing eliminates serial correlation leakage. \\
-Andrews~\cite{andrews1993tests} & Breakpoint Tests & Econometric Theory & Time series & N/A & Proves asymptotic distribution of sup-F unknown changepoint tests. \\
-Truong \textit{et al.}~\cite{truong2020selective} & Offline Changepoint & Algorithmic Review & Windowed search & N/A & Cost functions and penalty selection across continuous series. \\
-\textbf{This Work} & \textbf{Temporal Evidence} & \textbf{Enterprise Factory} & \textbf{Chronological / Grouped} & \textbf{Comprehensive} & \textbf{Proves uniform data structure, disconfirms naive breakpoint, exposes proxy leakage.} \\
+Cena \textit{et al.}~\cite{cena2021redundancy} \newline {\tiny(DOI: 10.1109/TII.2020.2979759)} & Redundancy and Diversity in Wireless Networks to Support Mobile Industrial Applications in Industry 4.0 & Industrial Wireless Networks & Physical Factory Testbed & Seamless packet replication across Wi-Fi channels bounds latency and mitigates shadowing for automated guided vehicles. \\
+Zunino \textit{et al.}~\cite{zunino2024adaptive} \newline {\tiny(DOI: 10.1109/TII.2023.3271708)} & Adaptive Seamless Redundancy to Achieve Highly-Dependable MQTT Communication & IIoT Messaging QoS & Emulation / Testbed Logs & Adaptive path selection dynamically minimizes transmission delays for critical MQTT industrial telemetry streams. \\
+Ferrari \textit{et al.}~\cite{ferrari2011wireless} \newline {\tiny(DOI: 10.1109/TII.2010.2089059)} & Wireless Model-Based Predictive Networked Control System Over Cooperative Wireless Network & Networked Control Systems & Closed-Loop Testbed & Empirical packet latency fluctuations directly degrade predictive control loop stability unless explicitly compensated. \\
+Vitturi \textit{et al.}~\cite{vitturi2019industrial} \newline {\tiny(DOI: 10.1109/JPROC.2019.2913443)} & Industrial Communication Systems and Their Future Challenges: Next-Generation Ethernet, IIoT, and 5G & Industrial Communication Survey & Industry Standards / OT & Synthesizes deterministic QoS bounds, sub-millisecond target latencies, and migration paths toward 5G URLLC in manufacturing. \\
+Popovski \textit{et al.}~\cite{popovski20185g} \newline {\tiny(DOI: 10.1109/ACCESS.2018.2872781)} & 5G Wireless Network Slicing for eMBB, URLLC, and mMTC: A Communication-Theoretic View & Wireless Slicing Theory & Analytical / Sim & Analyzes fundamental trade-offs between throughput, packet delay, and reliability across heterogeneous slices. \\
+Kapoor \& Narayanan~\cite{kapoor2023leakage} \newline {\tiny(DOI: 10.1016/j.patter.2023.100804)} & Leakage and the Reproducibility Crisis in Machine-Learning-Based Science & ML Reproducibility & Meta-Analysis ($N=329$ papers) & Identifies data leakage as a widespread driver of irreproducible claims across applied scientific machine learning. \\
+\textbf{This Work} & --- & \textbf{Industrial Telemetry Audit} & \textbf{Industrial Benchmark} & \textbf{Integrates distribution audits, sup-$F$ permutation testing, and leak-free temporal modeling to expose false signals.} \\
 \bottomrule
 \end{tabularx}
 \end{table*}
 
 \subsection{Network Telemetry in Smart Factories}
-The integration of 5G and nascent 6G private cellular networks provides industrial environments with fine-grained telemetry tracking packet latency, radio signal strength indicators (RSSI), and transmission error rates~\cite{haque2025urllc}. Several recent architectures explore localized breakout mechanisms at the gNodeB (gNB) to minimize propagation delays for robotic workcells~\cite{paudyal2025gnb, ibrahim2025urllc}. While communication-theoretic analyses prove that finite blocklength coding limits packet reliability under extreme deadlines~\cite{popovski20185g}, practical implementations often struggle to correlate transient packet fluctuations with macroscopic machine states due to low signal-to-noise ratios and buffer masking.
+The integration of 5G and nascent 6G private cellular networks provides industrial environments with fine-grained telemetry tracking packet latency, radio signal strength indicators (RSSI), and transmission error rates~\cite{haque2025urllc}. Several recent architectures explore localized breakout mechanisms at the gNodeB (gNB) to minimize propagation delays for robotic workcells~\cite{paudyal2025gnb, ibrahim2025urllc}. Communication-theoretic frameworks characterize fundamental trade-offs between throughput, latency, and reliability in network slicing~\cite{popovski20185g}. In experimental settings, redundant transmission paths and diversity schemes have been shown to stabilize latency under wireless channel degradation~\cite{cena2021redundancy, zunino2024adaptive}. Furthermore, physical closed-loop control studies confirm that uncompensated network transport delays can impair plant stability~\cite{ferrari2011wireless}. However, translating these microscopic networking dynamics into reliable macroscopic predictive signals remains challenging when operational telemetry exhibits low signal-to-noise ratios.
 
-\subsection{Predictive Maintenance and Methodological Pitfalls}
-In the domain of predictive maintenance (PdM), tree-based gradient boosting algorithms (LightGBM) and Random Forests remain dominant due to their robust handling of tabular, heterogeneous sensor feeds~\cite{breiman2001random, ke2017lightgbm}. However, as documented by Kaufman \textit{et al.}~\cite{kaufman2012leakage} and Kapoor and Narayanan~\cite{kapoor2023leakage}, predictive modeling in industrial informatics frequently suffers from proxy feature leakage. When machine efficiency is defined via composite scoring rules that directly aggregate individual telemetry streams, standard cross-validation fails to detect that the classifier is simply reproducing the arithmetic definition of the target. To our knowledge, this study is the first to integrate formal distribution audits, non-parametric permutation breakpoint testing, and leak-free temporal validation into a unified smart factory telemetry pipeline.
+\subsection{Predictive Modeling and Methodological Pitfalls}
+In predictive modeling on tabular sensor telemetry, ensemble tree methods such as Random Forests~\cite{breiman2001random} and gradient boosted decision trees (e.g., LightGBM~\cite{ke2017lightgbm}, XGBoost~\cite{chen2016xgboost}) are widely adopted for their handling of heterogeneous features. However, as documented by Kaufman \textit{et al.}~\cite{kaufman2012leakage} and Kapoor and Narayanan~\cite{kapoor2023leakage}, predictive pipelines in applied informatics frequently suffer from proxy feature leakage. When machine efficiency is defined via composite scoring rules that directly aggregate individual telemetry streams, standard cross-validation fails to detect that the classifier is simply reproducing the arithmetic definition of the target. In this study, we integrate formal distribution audits, non-parametric permutation breakpoint testing, and leak-free temporal validation into a unified smart factory telemetry pipeline.
 
 \section{Methodology and Dataset Audit}
 \label{sec:methodology}
@@ -139,17 +135,17 @@ The end-to-end analytical framework developed in this study is illustrated in Fi
 \begin{figure*}[t]
 \centering
 \begin{tikzpicture}[
-    node distance=0.55cm and 1.2cm,
-    block/.style={rectangle, draw=black!70, fill=blue!5, thick, rounded corners=3pt, text width=3.4cm, minimum height=1.05cm, align=center, font=\scriptsize},
-    audit/.style={rectangle, draw=red!70, fill=red!5, thick, rounded corners=3pt, text width=3.4cm, minimum height=1.05cm, align=center, font=\scriptsize},
-    model/.style={rectangle, draw=green!70!black, fill=green!5, thick, rounded corners=3pt, text width=3.4cm, minimum height=1.05cm, align=center, font=\scriptsize},
-    eval/.style={rectangle, draw=purple!70, fill=purple!5, thick, rounded corners=3pt, text width=3.4cm, minimum height=1.05cm, align=center, font=\scriptsize},
-    arrow/.style={-{Stealth[scale=0.9]}, thick, draw=black!80}
+    node distance=0.15cm and 0.65cm,
+    block/.style={rectangle, draw=black!70, fill=blue!5, thick, rounded corners=3pt, text width=3.3cm, minimum height=0.55cm, align=center, font=\scriptsize},
+    audit/.style={rectangle, draw=red!70, fill=red!5, thick, rounded corners=3pt, text width=3.3cm, minimum height=0.55cm, align=center, font=\scriptsize},
+    model/.style={rectangle, draw=green!70!black, fill=green!5, thick, rounded corners=3pt, text width=3.3cm, minimum height=0.55cm, align=center, font=\scriptsize},
+    eval/.style={rectangle, draw=purple!70, fill=purple!5, thick, rounded corners=3pt, text width=3.3cm, minimum height=0.55cm, align=center, font=\scriptsize},
+    arrow/.style={-{Stealth[scale=0.85]}, thick, draw=black!80}
 ]
 
 % Nodes
-\node (raw) [block] {\textbf{Raw Telemetry Ingestion}\\$N=100,000$, 50 Machines\\68.4 Days (1-min resolution)};
-\node (audit) [audit, right=of raw] {\textbf{Module 1: Distribution Audit}\\KS Uniform Testing ($D, p$)\\Pairwise Correlations ($N=36$)\\Audited Label Rule \& NRI};
+\node (raw) [block] {\textbf{Raw Telemetry Ingestion}\\$N=100,000$, 50 Machines\\68.4 Days (Irregular Sampling)};
+\node (audit) [audit, right=of raw] {\textbf{Module 1: Distribution Audit}\\KS Uniform Testing ($D, p$)\\Pairwise Correlations ($N=36$)\\Audited Label Rule \& Imbalance};
 \node (temp) [audit, below=of audit] {\textbf{Module 2: Temporal \& Breakpoint}\\ADF Stationarity Tests\\Granger Causality ($0/450$ sig)\\Vectorized Sup-$F$ Permutation};
 \node (clust) [block, below=of raw] {\textbf{Module 3: Profiling}\\K-Means Network Clustering\\Silhouette / DB / CH Selection\\Continuum Partition Analysis};
 \node (split) [model, below=of temp] {\textbf{Module 4: Leak-Free Validation}\\Chronological 80/20 Train/Test\\Grouped Split (Unseen Machines)\\Strict Feature Isolation};
@@ -172,9 +168,9 @@ The end-to-end analytical framework developed in this study is illustrated in Fi
 \end{figure*}
 
 \subsection{Dataset Provenance and Statistical Distribution Audit}
-The case study analyzes the enterprise-scale \textit{Thales Group Manufacturing Telemetry Benchmark}, capturing continuous smart factory operations. The dataset comprises $N=100,000$ consecutive records sampled at regular 1-minute intervals across 50 distinct industrial CNC machines and robotic cells, spanning exactly 68.44 days (from 2025-01-01 00:00:00 to 2025-03-10 10:39:00). Each record logs timestamp, machine identifier ($M \in [1, 50]$), discrete operating mode ($S \in \{\text{Active}, \text{Idle}, \text{Maintenance}\}$), two wireless network telemetry features, and six operational/environmental sensor variables.
+The case study analyzes the \textit{Thales Group Manufacturing Telemetry} dataset released on Kaggle, capturing smart factory operational records. The dataset comprises $N=100,000$ telemetry rows recorded across 50 distinct industrial machine identifiers over a 68.4-day span (from 2025-01-01 00:00:00 to 2025-03-10 10:39:00). While dataset-wide timestamps advance regularly, per-machine observations arrive irregularly (median inter-sample arrival time of approximately 34 minutes per machine, with an interquartile range of 15 to 68 minutes). Each record logs timestamp, machine identifier ($M \in [1, 50]$), operating mode ($S \in \{\text{Active}, \text{Idle}, \text{Maintenance}\}$), two wireless network telemetry features, and six operational/environmental sensor variables.
 
-To address \textbf{RQ1}, we test whether each continuous telemetry variable $X$ originates from an authentic physical stochastic process or is statistically indistinguishable from a continuous uniform distribution $\mathcal{U}(a, b)$, where $a = \min(X)$ and $b = \max(X)$. We apply the two-sided one-sample Kolmogorov-Smirnov (KS) test:
+To address \textbf{RQ1}, we test whether each continuous telemetry variable $X$ exhibits significant departure from a continuous uniform distribution $\mathcal{U}(a, b)$, where $a = \min(X)$ and $b = \max(X)$. We apply the two-sided one-sample Kolmogorov-Smirnov (KS) test:
 \begin{equation}
 D_N = \sup_{x \in [a, b]} \left| F_N(x) - F_{\mathcal{U}}(x) \right|,
 \label{eq:ks_test}
@@ -187,7 +183,7 @@ p_{\text{adj}} = \min\left(1.0, \; 36 \times p_{\text{uncorr}}\right).
 \label{eq:bonferroni}
 \end{equation}
 
-\subsection{Audited Label Rule Construction and Net Representation Index}
+\subsection{Audited Label Rule Construction and Imbalance Ratio}
 The operational target in the benchmark is categorical \textit{Operational Efficiency}, categorized into three ordinal levels: $\mathcal{Y} \in \{\text{Low}, \text{Medium}, \text{High}\}$. Auditing the ground truth against operational telemetry reveals that $\mathcal{Y}$ is governed by a deterministic composite decision boundary ($99.998\%$ exact match across all $100,000$ records):
 \begin{equation}
 \mathcal{Y} = 
@@ -200,38 +196,31 @@ The operational target in the benchmark is categorical \textit{Operational Effic
 \end{equation}
 where $E$ denotes Error Rate (\%) and $P$ denotes Production Speed (units/hr). 
 
-Under independent uniform variables $E \sim \mathcal{U}(0, 15)$ and $P \sim \mathcal{U}(50, 500)$, the theoretical probabilities are:
-\begin{align}
-P(\text{Low}) &= 1 - P(E \le 5.0 \land P > 200) \nonumber \\
-&= 1 - (1/3)(2/3) = 7/9 \approx 77.78\%, \nonumber \\
-P(\text{High}) &= P(P > 400 \land E \le 2.0) \nonumber \\
-&= (2/9)(2/15) = 4/135 \approx 2.96\%, \nonumber \\
-P(\text{Medium}) &= 1 - 7/9 - 4/135 = 26/135 \approx 19.26\%.
-\label{eq:theoretical_probs}
-\end{align}
-
-Recomputing the exact empirical class frequencies from the CSV confirms:
-\begin{itemize}
-    \item \textbf{Low Efficiency}: $N_{\text{Low}} = 77,825$ ($77.825\%$)
-    \item \textbf{Medium Efficiency}: $N_{\text{Med}} = 19,189$ ($19.189\%$)
-    \item \textbf{High Efficiency}: $N_{\text{High}} = 2,986$ ($2.986\%$)
-\end{itemize}
-To quantify the extreme class skew, we compute the Net Representation Index (NRI) between the majority and minority classes:
 \begin{equation}
-\text{NRI} = \frac{N_{\text{Low}} - N_{\text{High}}}{N_{\text{Low}} + N_{\text{High}}} = \frac{77,825 - 2,986}{77,825 + 2,986} = 0.9261.
-\label{eq:nri}
+\label{eq:theoretical_probs}
+\begin{aligned}
+P(\text{Low}) &= 1 - (1/3)(2/3) = 7/9 \approx 77.78\%, \\
+P(\text{High}) &= (2/9)(2/15) = 4/135 \approx 2.96\%, \\
+P(\text{Medium}) &= 1 - 7/9 - 4/135 = 26/135 \approx 19.26\%.
+\end{aligned}
 \end{equation}
-This verifies severe imbalance: over $77.8\%$ of operational states fall into the degraded ``Low'' efficiency regime, while pristine ``High'' efficiency represents less than $3\%$ of operations.
+
+Recomputing the exact empirical class frequencies from the CSV confirms: Low Efficiency ($N_{\text{Low}} = 77,825$, $77.825\%$), Medium Efficiency ($N_{\text{Med}} = 19,189$, $19.189\%$), and High Efficiency ($N_{\text{High}} = 2,986$, $2.986\%$). To quantify class asymmetry, we compute the empirical class imbalance ratio between the majority and minority classes:
+\begin{equation}
+\text{Imbalance Ratio} = \frac{N_{\text{Low}}}{N_{\text{High}}} = \frac{77,825}{2,986} \approx 26.06 : 1.
+\label{eq:imbalance_ratio}
+\end{equation}
+Over $77.8\%$ of operational states fall into the degraded ``Low'' efficiency regime, while pristine ``High'' efficiency represents under $3\%$ of operations.
 
 \subsection{Temporal Stationarity and Causal Precedence}
-To address \textbf{RQ2}, we evaluate the time-series dynamics of network latency ($L_t$) and production speed ($P_t$). We first test for the presence of a unit root using the Augmented Dickey-Fuller (ADF) regression~\cite{dickey1979distribution}:
+To address \textbf{RQ2}, we evaluate the time-series dynamics of network latency ($L_t$) and production speed ($P_t$). We test for unit roots using the Augmented Dickey-Fuller (ADF) regression implemented via \texttt{statsmodels}~\cite{seabold2010statsmodels, dickey1979distribution}:
 \begin{equation}
 \Delta Y_t = \alpha + \beta t + \gamma Y_{t-1} + \sum_{j=1}^p \delta_j \Delta Y_{t-j} + \varepsilon_t.
 \label{eq:adf}
 \end{equation}
-Rejecting the null hypothesis $H_0: \gamma = 0$ confirms weak stationarity.
+Rejecting the null hypothesis $H_0: \gamma = 0$ confirms weak stationarity. ADF tests are conducted on both the continuous network latency and production speed series across all machines.
 
-Next, we evaluate Granger causality across all 50 individual machines and operational modes for temporal lags $k \in \{1, 2, 3\}$ minutes ($450$ distinct tests)~\cite{granger1969investigating}. We estimate the bivariate autoregressive model:
+Because per-machine telemetry sampling is irregular, autoregressive lags represent sequential row lags per machine rather than fixed elapsed minutes. We evaluate Granger causality across all 50 individual machines and operational modes for row lags $k \in \{1, 2, 3\}$ ($450$ distinct tests)~\cite{granger1969investigating}. We estimate the bivariate autoregressive model:
 \begin{equation}
 P_t = c + \sum_{i=1}^k a_i P_{t-i} + \sum_{i=1}^k b_i L_{t-i} + u_t,
 \label{eq:granger}
@@ -244,18 +233,18 @@ To address \textbf{RQ3}, we examine whether network latency exhibits a sharp thr
 P_t = \beta_0 + \beta_1 L_t + \beta_2 (L_t - \tau) \cdot \mathbf{1}_{\{L_t > \tau\}} + \varepsilon_t.
 \label{eq:segmented_regression}
 \end{equation}
-Testing the presence of a structural break evaluates the null hypothesis $H_0: \beta_2 = 0$ against $H_1: \beta_2 \ne 0$. In standard software implementations, an exhaustive grid search selects $\hat{\tau} = \arg\max_\tau F(\tau)$, where $F(\tau)$ is the Chow-type $F$-statistic comparing the segmented model against a simple linear baseline.
+Testing the presence of a structural break evaluates the null hypothesis $H_0: \beta_2 = 0$ against $H_1: \beta_2 \ne 0$. Candidate thresholds are scanned across the 10th to 90th empirical percentiles of the latency distribution (81 quantile points). In standard software implementations, an exhaustive grid search selects $\hat{\tau} = \arg\max_\tau F(\tau)$, where $F(\tau)$ is the Chow-type $F$-statistic comparing the segmented model against a simple linear baseline.
 
-\textbf{Methodological Hazard}: As proved by Andrews~\cite{andrews1993tests} and Hansen~\cite{hansen2000sample}, when the threshold parameter $\tau$ is unknown under the null hypothesis (nuisance parameter problem), the test statistic $\sup_{\tau} F(\tau)$ does \textit{not} follow a standard Fisher-Snedecor $F_{1, N-k}$ distribution. Selecting the maximal $F$-statistic across a dense grid guarantees that the naive $p$-value will be substantially anti-conservative.
+\textbf{Methodological Hazard}: As proved by Andrews~\cite{andrews1993tests} and Hansen~\cite{hansen2000sample}, when the threshold parameter $\tau$ is unknown under the null hypothesis (nuisance parameter problem), the test statistic $\sup_{\tau} F(\tau)$ does \textit{not} follow a standard Fisher-Snedecor $F_{1, N-k}$ distribution. Selecting the maximal $F$-statistic across a dense grid causes the naive asymptotic $p$-value to be substantially anti-conservative.
 
-To obtain an exact, finite-sample valid test without relying on asymptotic approximations, we implement a vectorized supremum-$F$ permutation test with $B = 2,000$ iterations (reproducibility seed=42 in \texttt{src/audit\_uniformity.py}). Utilizing the Frisch-Waugh-Lovell (FWL) theorem, we project out the nuisance subspace $\mathbf{X}_0 = [\mathbf{1}, \mathbf{L}]$:
+To obtain an exact, finite-sample valid test of independence between latency and production speed without relying on asymptotic approximations, we implement a vectorized supremum-$F$ permutation test with $B = 2,000$ iterations (seed=42 in \texttt{src/audit\_uniformity.py}). Utilizing the Frisch-Waugh-Lovell (FWL) theorem, we project out the linear nuisance subspace $\mathbf{X}_0 = [\mathbf{1}, \mathbf{L}]$:
 \begin{equation}
 \mathbf{M}_0 = \mathbf{I} - \mathbf{X}_0 (\mathbf{X}_0^T \mathbf{X}_0)^{-1} \mathbf{X}_0^T.
 \label{eq:projection}
 \end{equation}
-For each candidate $\tau$, the orthogonalized segmented regressor is $\tilde{\mathbf{z}}_\tau = \mathbf{M}_0 (\mathbf{L} - \tau)_+$. For any permuted response vector $\mathbf{P}^{(b)}$, the numerator of the $F$-statistic reduces to a fast matrix-vector dot product:
+For each candidate $\tau$, the orthogonalized segmented regressor is $\tilde{\mathbf{z}}_\tau = \mathbf{M}_0 (\mathbf{L} - \tau)_+$. Under the permutation null of independence, for any randomly permuted response vector $\mathbf{P}^{(b)}$, the permuted response is residualized via $\tilde{\mathbf{P}}^{(b)} = \mathbf{M}_0 \mathbf{P}^{(b)}$. Because $\mathbf{M}_0$ is symmetric and idempotent with $\mathbf{M}_0 \tilde{\mathbf{z}}_\tau = \tilde{\mathbf{z}}_\tau$, the numerator of the test statistic simplifies to a vectorized dot product:
 \begin{equation}
-F^{(b)}(\tau) = \frac{(\tilde{\mathbf{z}}_\tau^T \mathbf{P}^{(b)})^2 / (\tilde{\mathbf{z}}_\tau^T \tilde{\mathbf{z}}_\tau)}{\hat{\sigma}_{(b)}^2(\tau)}.
+F^{(b)}(\tau) = \frac{(\tilde{\mathbf{z}}_\tau^T \tilde{\mathbf{P}}^{(b)})^2 / (\tilde{\mathbf{z}}_\tau^T \tilde{\mathbf{z}}_\tau)}{\hat{\sigma}_{(b)}^2(\tau)}.
 \label{eq:vectorized_f}
 \end{equation}
 The empirical supremum permutation $p$-value is computed as:
@@ -264,20 +253,16 @@ p_{\text{perm}} = \frac{1}{B} \sum_{b=1}^B \mathbf{1}_{\left\{ \sup_\tau F^{(b)}
 \label{eq:permutation_pval}
 \end{equation}
 
+To estimate parameter uncertainty for $\hat{\tau}$ in pooled regression while accounting for machine-level clustering, we implement a machine-block bootstrap ($B = 1,000$ resamples). Resampling intact machine time-series with replacement preserves within-machine serial correlation and operational heterogeneity, yielding empirical confidence intervals for $\hat{\tau}$.
+
 \subsection{Leakage-Safe Predictive Modeling Framework}
-To answer \textbf{RQ5}, we formulate the prediction of operational efficiency $\mathcal{Y}_t$ as a supervised multiclass classification task.
+To answer \textbf{RQ5}, we formulate the prediction of operational efficiency $\mathcal{Y}_t$ as a supervised multiclass classification task implemented using \texttt{scikit-learn}~\cite{pedregosa2011scikit} and LightGBM~\cite{ke2017lightgbm}.
 
-\subsubsection{Model Architectures}
-We evaluate three model configurations:
-\begin{itemize}
-    \item \textbf{Model A (Early Warning, Horizon B)}: Predicts future efficiency $\mathcal{Y}_{t+H}$ at a physical time horizon of $H = 30\text{ min} \pm 10\text{ min}$ ($N=23,587$) using only historical features available at time $t$.
-    \item \textbf{Model A (Early Warning, Horizon A)}: Sensitivity check utilizing a 1-step row shift ($N=99,950$).
-    \item \textbf{Model B (Diagnosis)}: Contemporaneous classification at time $t$ (predicting near chance, ROC-AUC $\approx 0.50$). To prevent circular label leakage, contemporaneous production speed and error rate are strictly excluded.
-    \item \textbf{Model A (Unseen Machines)}: Evaluates cross-machine generalizability by training on Machines 1--40 and testing strictly on unseen Machines 41--50 ($N=20,016$).
-\end{itemize}
+\textbf{Feature Engineering and Target Isolation}: To prevent proxy feature leakage, contemporaneous Error Rate and Production Speed are strictly excluded from all feature matrices. The predictive feature set (32 features total) includes: raw operational telemetry (Temperature, Vibration, Power Consumption, Maintenance Score, Defect Rate); wireless network telemetry (Network Latency, Packet Loss); sequential lag features (Lags 1, 2, and 3 for Latency and Packet Loss); and rolling window statistics (mean, standard deviation, min, max over 5-step and 15-step windows).
 
-\subsubsection{Validation Splits}
-We enforce a chronological 80/20 train/test split (first 80,000 observations for training, final 20,000 for evaluation) to ensure strict temporal precedence ($t_{\text{train}} < t_{\text{test}}$), as well as a grouped holdout split by machine identifier.
+\textbf{Architectures and Hyperparameters}: We benchmark four supervised models against a Dummy Majority baseline: (1)~\textit{Logistic Regression}: $L_2$ regularization ($C=1.0$), `class\_weight='balanced'`, maximum iterations 1,000 with `StandardScaler`; (2)~\textit{Random Forest}: 200 trees, maximum depth 12, minimum samples split 5, `class\_weight='balanced'`; and (3)~\textit{LightGBM}: 200 boosting iterations, learning rate 0.05, maximum depth 6, 31 leaves, `class\_weight='balanced'`.
+
+\textbf{Formulations and Validation Splits}: We evaluate four experimental configurations: (1)~\textit{Model A (Early Warning, Horizon B)}: predicts future efficiency $\mathcal{Y}_{t+H}$ at physical time horizon $H = 30\text{ min} \pm 10\text{ min}$ ($N=23,587$); (2)~\textit{Model A (Early Warning, Horizon A)}: sensitivity check using a 1-step row shift ($N=99,950$); (3)~\textit{Model B (Diagnosis)}: contemporaneous classification at time $t$ strictly isolating raw label components; and (4)~\textit{Model A (Unseen Machines 41--50, Horizon B)}: trained on Machines 1--40 and tested on held-out Machines 41--50 under Horizon B ($N=20,016$). Validation enforces an 80/20 chronological split ($t_{\text{train}} < t_{\text{test}}$) as well as grouped holdout splits by machine identifier. Feature attribution is computed via SHAP~\cite{lundberg2017unified}.
 
 \section{Empirical Results}
 \label{sec:results}
@@ -310,16 +295,12 @@ Maintenance Score & $[0.000, 1.000]$ & 0.002850 & 0.3903 & 1.0000 \\
 {\raggedright \footnotesize \textsuperscript{*}KS bounds were estimated from data; $p$-values are conservative (Lilliefors-type correction not applied).\par}
 \end{table}
 
-The empirical findings are definitive. For eight of the nine variables, the raw $p$-values exceed 0.16, showing remarkable adherence to uniform distributions. For Production Speed, the test yields $D=0.004756$ with a raw $p=0.0216$. However, when correcting for multiple testing across all nine variables, the Bonferroni-adjusted $p$-value is $p_{\text{adj}} = 0.1947$ (and across the five core operational variables, $p_{\text{adj}} = 0.1082$); neither reaches the standard significance threshold $\alpha = 0.05$. Thus, all nine features are \textit{statistically consistent with independent uniform generation}.
+The empirical findings show clear concordance across tests. For eight of the nine variables, raw $p$-values exceed 0.16, showing no evidence against uniform distributions. For Production Speed, the test yields $D=0.004756$ with raw $p=0.0216$. However, when correcting for multiple testing across all nine variables, the Bonferroni-adjusted $p$-value is $p_{\text{adj}} = 0.1947$ (and across the five core operational variables, $p_{\text{adj}} = 0.1082$); neither reaches the standard significance threshold $\alpha = 0.05$. Thus, all nine features show \textit{no statistical evidence against independent uniform generation}.
 
-Furthermore, evaluation of the pairwise correlation matrix $\mathbf{R} \in \mathbb{R}^{9 \times 9}$ (archived in \texttt{reports/correlation\_matrix.csv}) reveals that all 36 pairwise Pearson correlation coefficients are bounded in $[-0.0071, +0.0075]$. The single largest absolute correlation observed across the entire dataset is between Vibration and Network Latency ($r = 0.007546$, raw uncorrected $p \approx 0.0170$). After family-wise Bonferroni adjustment across the 36 pairs, the adjusted $p$-value is:
-\begin{equation}
-p_{\text{adj}} = \min(1.0, 36 \times 0.017019) = 0.6127.
-\end{equation}
-Not a single correlation survives multiple testing correction. There is no evidence of cross-feature coupling in the raw telemetry.
+Furthermore, evaluation of the pairwise correlation matrix $\mathbf{R} \in \mathbb{R}^{9 \times 9}$ (archived in \texttt{reports/correlation\_matrix.csv}) reveals that all 36 pairwise Pearson correlation coefficients are bounded in $[-0.0071, +0.0075]$. The single largest absolute correlation observed across the entire dataset is between Vibration and Network Latency ($r = 0.007546$, raw uncorrected $p \approx 0.0170$). After family-wise Bonferroni adjustment across all 36 pairs, the adjusted $p$-value is $p_{\text{adj}} = \min(1.0, 36 \times 0.017019) = 0.6127$. Not a single correlation survives multiple testing correction. These pairwise correlations demonstrate no linear dependence between network telemetry and manufacturing features.
 
 \subsection{Temporal Stationarity and Granger Causality (RQ2)}
-Application of the Augmented Dickey-Fuller test to the network latency time-series yields an ADF test statistic of $t = -14.49$ ($p < 0.001$), rejecting the unit root hypothesis and confirming weak stationarity.
+Application of the Augmented Dickey-Fuller test to the continuous network latency and production speed time-series yields ADF statistics of $t = -14.49$ ($p < 0.001$) and $t = -14.36$ ($p < 0.001$), confirming weak stationarity.
 
 Table~\ref{tab:granger_results} presents the Granger causality test summary evaluating whether past network latency predicts current production speed across all 450 machine-mode-lag configurations from \texttt{reports/granger\_causality\_results.csv}.
 
@@ -344,6 +325,13 @@ Maintenance & 150 & 7 (4.7\%) & 0 (0.0\%) & No \\
 
 Across all 450 tested configurations, exactly 23 nominally pass ($5.1\%$, matching the nominal false-positive rate under the null). Following Benjamini-Hochberg adjustment, exactly zero (0) tests demonstrate statistically significant temporal precedence. Latency fluctuations do not Granger-cause production speed variations.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.68\columnwidth]{figures/latency_breakpoint_segmented_fit.png}
+\caption{Segmented piecewise linear regression fit of network latency versus production speed for pooled telemetry across all 50 machines ($N=100,000$). Global nominal breakpoint at $\hat{\tau} = 41.22$\,ms ($F = 1.0532$, naive $p = 0.3048$, sup-$F$ perm $p_{\text{perm}} = 0.7530$, FDR $q = 0.7530$) yields an unreliably wide $95\%$ block bootstrap CI of $[6.0, 45.2]$\,ms, confirming that global latency thresholds are artifacts of operational pooling across heterogeneous machines.}
+\label{fig:breakpoint_fit}
+\end{figure}
+
 \subsection{Structural Breakpoint Analysis: Naive $F$ vs. Permutation Test (RQ3)}
 Evaluating segmented linear regression models across discrete operational modes identifies candidate breakpoints in latency. In Active mode, the exhaustive search algorithm selects a threshold candidate at $\hat{\tau} = 20.69$\,ms ($\approx 20.7$\,ms). Table~\ref{tab:breakpoint_results} contrasts the naive asymptotic $F$-test against the supremum-$F$ permutation test ($N=2,000$ iterations, seed=42, archived in \texttt{reports/breakpoint\_permutation\_tests.csv}).
 
@@ -367,14 +355,7 @@ Maintenance & 25.50 ms & 3.2382 & 0.0720 & 0.2550 & 0.5100 \\
 
 While the naive $F$-test reports an apparently significant $p = 0.0378$ ($F=4.3127$) for Active mode, the exact supremum permutation test yields $p_{\text{perm}} = 0.1640$, corresponding to a Benjamini-Hochberg false discovery rate of $q = 0.5100$. Under the permuted null distribution where latency and production speed are independent, a maximal $F$-statistic of $4.3127$ or greater arises by pure chance in $16.4\%$ of random realizations. 
 
-The 20.7\,ms threshold is a classic artifact of data-dependent threshold selection. It cannot be cited as a confirmed operational guardrail.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{figures/latency_breakpoint_segmented_fit.png}
-\caption{Segmented piecewise linear regression fit of network latency versus production speed across operational modes. In Active mode, candidate breakpoint $\hat{\tau} = 20.69$\,ms yields a naive $F = 4.3127$ ($p = 0.0381$), but fails to achieve statistical significance under supremum-$F$ permutation testing ($p_{\text{perm}} = 0.1640$, FDR $q = 0.5100$).}
-\label{fig:breakpoint_fit}
-\end{figure}
+Crucially, under the permutation null, the naive test rejects the null at nominal $\alpha=0.05$ in $20.45\%$ of realizations (409 out of 2,000 permutations), demonstrating a more than fourfold inflation of the type-I error rate when using standard asymptotic tables for data-chosen breakpoints. The 20.7\,ms threshold is a classic artifact of data-dependent threshold selection and cannot be cited as a confirmed operational guardrail.
 
 \subsection{Unsupervised Network Profiling (RQ4)}
 Evaluating $K$-means clustering across candidate cluster counts $k \in [2, 6]$ on standardized network features (\texttt{StandardScaler}) produces the selection ladder summarized in Table~\ref{tab:clustering_metrics} (archived in \texttt{reports/clustering\_k\_selection.csv}).
@@ -396,98 +377,73 @@ $k=5$ & 42,314 & 0.3908 & 0.8367 & 93,161 \\
 $k=6$ & 35,980 & 0.3745 & 0.8422 & 91,169 \\
 \bottomrule
 \end{tabular}
-\vspace{1ex}
-{\raggedright \footnotesize \textsuperscript{\dag}Silhouette scores evaluated on a representative random subsample of $n=15,000$ observations (seed 42 in \texttt{src/network\_profiling.py}) due to $\mathcal{O}(N^2)$ pairwise distance complexity; Inertia, Davies-Bouldin, and Calinski-Harabasz indices evaluate all $N=100,000$ points.\par}
+\vspace{0.5ex}
+{\raggedright \scriptsize \textsuperscript{\dag}Silhouette scores evaluated on a representative random subsample of $n=15,000$ observations (seed 42 in \texttt{src/network\_profiling.py}) due to $\mathcal{O}(N^2)$ pairwise distance complexity; Inertia, Davies-Bouldin, and Calinski-Harabasz indices evaluate all $N=100,000$ points.\par}
 \end{table}
 
-The optimal partition occurs at $k=4$, maximizing the silhouette score ($0.4063$) and minimizing the Davies-Bouldin index ($0.7690$). Due to the $\mathcal{O}(N^2)$ pairwise distance complexity across $N=100,000$ observations, silhouette scores were computed on a representative random subsample of $n=15,000$ observations (seed 42 in \texttt{src/network\_profiling.py}), whereas Inertia, Davies-Bouldin, and Calinski-Harabasz indices were evaluated over all $100,000$ points. However, silhouette scores below $0.50$ confirm that these clusters do not represent discrete physical operational regimes; rather, they represent an arbitrary geometric Voronoi partition of a continuous uniform bivariate plane.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{figures/clustering_evaluation_k_selection.png}
-\caption{Multi-cluster K-means evaluation across candidate cluster counts $k \in [2, 6]$ showing Inertia (Elbow method), Silhouette Score (evaluated on a random subsample of $n=15,000$ observations due to $\mathcal{O}(N^2)$ pairwise distance complexity), and Davies-Bouldin Index. The optimal partition occurs at $k=4$ (Silhouette: 0.4063, Davies-Bouldin: 0.7690).}
-\label{fig:clustering_k_selection}
-\end{figure}
+The partition at $k=4$ maximizes the silhouette score ($0.4063$)\cite{rousseeuw1987silhouettes} and minimizes the Davies-Bouldin index ($0.7690$)\cite{davies1979cluster}. However, silhouette scores below $0.50$ are consistent with an arbitrary geometric Voronoi partition of a continuous uniform bivariate plane rather than discrete physical operational regimes. Similarly, Calinski-Harabasz metrics ($99,386$)\cite{calinski1974dendrite} scale directly with sample size ($N=100,000$), reflecting geometric density rather than clustering quality.
 
 \subsection{Supervised Predictive Modeling Ladder (RQ5)}
-Table~\ref{tab:model_ladder} presents the full empirical performance ladder across model formulations and validation splits from \texttt{reports/model\_baseline\_ladder.csv}.
+Table~\ref{tab:model_ladder} presents the empirical performance ladder across model formulations and validation splits from \texttt{reports/model\_baseline\_ladder.csv}, with bootstrap 95\% confidence intervals for ROC-AUC and class-specific precision and recall for the minority High-efficiency class.
 
 \begin{table*}[t]
 \caption{Supervised Model Performance Ladder Across Chronological and Grouped Splits}
 \label{tab:model_ladder}
 \centering
 \footnotesize
-\setlength{\tabcolsep}{4pt}
-\begin{tabularx}{\textwidth}{@{}l l c c c c >{\raggedright\arraybackslash}X@{}}
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\textwidth}{@{}l l c c c c c c X@{}}
 \toprule
-\textbf{Model Formulation} & \textbf{Algorithm} & \textbf{Accuracy} & \textbf{Macro F1} & \textbf{Weighted F1} & \textbf{ROC-AUC} & \textbf{Operational Interpretation} \\
+\textbf{Model Formulation} & \textbf{Algorithm} & \textbf{Acc.} & \textbf{Macro F1} & \textbf{Wtd F1} & \textbf{ROC-AUC [95\% CI]} & \textbf{Hi-P} & \textbf{Hi-R} & \textbf{Operational Interpretation} \\
 \midrule
-\multirow{4}{*}{\textbf{Model A (Horizon B: 30-min)}} 
- & Dummy Majority & 0.7842 & 0.2930 & 0.6894 & 0.5000 & Naive majority class baseline \\
- & Logistic Regression & 0.2791 & 0.2321 & 0.3554 & 0.5029 & Underperforms majority baseline \\
- & Random Forest & 0.6730 & 0.3368 & 0.6622 & 0.5068 & Near-chance discrimination \\
- & LightGBM & 0.4313 & 0.2966 & 0.5014 & 0.5073 & Near-chance discrimination \\
+\multirow{4}{*}{\textbf{\shortstack[l]{Model A\\(Horizon B: 30-min)}}} 
+ & Dummy Majority & 0.7842 & 0.2930 & 0.6894 & 0.5000 [0.5000, 0.5000] & 0.0000 & 0.0000 & Naive majority class baseline \\
+ & Logistic Regression & 0.2791 & 0.2321 & 0.3554 & 0.5029 [0.4828, 0.5253] & 0.0302 & 0.4656 & Underperforms majority baseline \\
+ & Random Forest & 0.6730 & 0.3368 & 0.6622 & 0.5068 [0.4856, 0.5296] & 0.0404 & 0.0305 & Near-chance discrimination \\
+ & LightGBM & 0.4313 & 0.2966 & 0.5014 & 0.5073 [0.4863, 0.5283] & 0.0295 & 0.2061 & Near-chance discrimination \\
 \midrule
-\multirow{2}{*}{\textbf{Model A (Horizon A: 1-shift)}} 
- & Random Forest & 0.5284 & 0.3126 & 0.5742 & 0.4949 & Near-chance discrimination \\
- & LightGBM & 0.3725 & 0.2707 & 0.4470 & 0.4988 & Near-chance discrimination \\
+\multirow{2}{*}{\textbf{\shortstack[l]{Model A\\(Horizon A: 1-shift)}}} 
+ & Random Forest & 0.5284 & 0.3126 & 0.5742 & 0.4949 [0.4851, 0.5048] & 0.0291 & 0.1117 & Near-chance discrimination \\
+ & LightGBM & 0.3725 & 0.2707 & 0.4470 & 0.4988 [0.4891, 0.5089] & 0.0315 & 0.2709 & Near-chance discrimination \\
 \midrule
-\multirow{2}{*}{\textbf{Model B (Contemporaneous Diagnosis)}} 
- & Random Forest & 0.5570 & 0.3246 & 0.5947 & 0.5016 & Near-chance discrimination \\
- & LightGBM & 0.3789 & 0.2733 & 0.4545 & 0.4994 & Near-chance discrimination \\
+\multirow{2}{*}{\textbf{\shortstack[l]{Model B\\(Diagnosis)}}} 
+ & Random Forest & 0.5569 & 0.3246 & 0.5947 & 0.5016 [0.4916, 0.5114] & 0.0240 & 0.0590 & Near-chance discrimination \\
+ & LightGBM & 0.3789 & 0.2733 & 0.4545 & 0.4994 [0.4895, 0.5078] & 0.0300 & 0.2574 & Near-chance discrimination \\
 \midrule
-\multirow{2}{*}{\textbf{Model A (Unseen Machines 41--50)}} 
- & Random Forest & 0.7024 & 0.3275 & 0.6717 & 0.4896 & Zero generalizability gain \\
- & LightGBM & 0.4435 & 0.2889 & 0.5108 & 0.4738 & Zero generalizability gain \\
+\multirow{2}{*}{\textbf{\shortstack[l]{Model A\\(Unseen Machines, Hor. B)}}} 
+ & Random Forest & 0.7024 & 0.3275 & 0.6717 & 0.4896 [0.4675, 0.5134] & 0.0141 & 0.0078 & No better than chance \\
+ & LightGBM & 0.4435 & 0.2889 & 0.5108 & 0.4738 [0.4539, 0.4948] & 0.0215 & 0.1328 & No better than chance \\
 \bottomrule
 \end{tabularx}
+\vspace{0.5ex}
+{\raggedright \scriptsize Note: High denotes pristine operational efficiency ($\mathcal{Y}=\text{High}$, $2.986\%$ prevalence). Unseen Machines evaluates Horizon B ($H = 30\text{ min}$) on held-out Machines 41--50 ($N=20,016$) comparing directly with seen machines under Horizon B. 95\% confidence intervals for ROC-AUC are estimated via 1,000 bootstrap resamples on the test set.\par}
 \end{table*}
 
-The empirical findings are consistent across all architectures:
-\begin{enumerate}
-    \item \textbf{Near-Chance Predictive Discrimination}: Across all configurations, ROC-AUC values remain strictly confined between $0.4738$ and $0.5073$. When evaluated under macro-averaged ROC-AUC, tree-based models cannot reliably separate operational efficiency classes using network telemetry.
-    \item \textbf{Macro F1 Ceiling}: Random Forest achieves a nominal Macro F1 of $0.3368$ on Horizon B, which does not represent meaningful predictive capture of the minority classes (High efficiency recall is only $3.05\%$).
-    \item \textbf{Generalization on Unseen Machines}: The small gap between seen machines ($0.3368$ Macro F1) and unseen machines ($0.3275$ Macro F1) is expected when predicting near chance; it reflects the persistence of uninformative baselines rather than authentic model generalization.
-\end{enumerate}
+The empirical findings are consistent across all architectures: (1)~\textbf{Near-Chance Predictive Discrimination}: Across all configurations, ROC-AUC values remain strictly confined between $0.4738$ and $0.5073$, with bootstrap 95\% confidence intervals overlapping $0.5000$. Tree-based models cannot reliably separate operational efficiency classes using network telemetry. (2)~\textbf{Macro F1 Ceiling}: Random Forest achieves a nominal Macro F1 of $0.3368$ on Horizon B, which does not represent meaningful predictive capture of minority classes (High efficiency recall is only $3.05\%$). (3)~\textbf{Generalization on Unseen Machines}: Comparing like with like under Horizon B, Random Forest achieves $0.3368$ Macro F1 on seen machines versus $0.3275$ on unseen machines. Both operate near chance, confirming that performance reflects uninformative baselines rather than authentic model generalization.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/shap_summary_model_a.png}
-\caption{SHAP feature attribution summary for Model A (Early Warning, Horizon B). Environmental and machine sensor features dominate attribution, while network latency and packet loss exhibit minimal predictive influence, consistent with near-chance operational efficiency classification.}
+\includegraphics[width=0.60\columnwidth]{figures/shap_summary_model_a.png}
+\caption{SHAP feature attribution summary for Model A (Early Warning, Horizon B). Nominal top feature is latency\_lag\_1, but all mean absolute SHAP values satisfy $|\text{SHAP}| \le 0.008$ across all features, confirming that feature importance rankings are at noise level and yield near-chance discrimination.}
 \label{fig:shap_model_a}
 \end{figure}
 
 \section{Discussion}
 \label{sec:discussion}
 
-\subsection{Answers to Research Questions}
-We systematically address the five research questions:
-\begin{itemize}
-    \item \textbf{RQ1 (Generative Distribution)}: Formal KS tests fail to reject continuous uniformity for all nine telemetry variables after Bonferroni correction ($p_{\text{adj}} \ge 0.1082$). Pairwise correlations are statistically negligible ($|r| \le 0.0075$, none survive Bonferroni across 36 pairs). The telemetry is statistically consistent with independent uniform generation.
-    \item \textbf{RQ2 (Temporal Causality)}: Telemetry streams are weakly stationary ($p < 0.001$), but Granger causality tests across 450 machine-mode-lag configurations reveal zero statistically significant predictive precedence after FDR control ($0/450$ significant).
-    \item \textbf{RQ3 (Breakpoint Validity)}: The apparent 20.7\,ms latency breakpoint is an artifact of candidate quantile selection ($F=4.3127$, naive $p=0.038$). A rigorous supremum-$F$ permutation test reveals $p=0.1640$ (FDR $q=0.5100$). The breakpoint is strictly exploratory.
-    \item \textbf{RQ4 (Network Regimes)}: Multi-$k$ clustering demonstrates that $k=4$ maximizes the silhouette score ($0.4063$ under \texttt{StandardScaler}), reflecting an arbitrary geometric partitioning of a continuous uniform bivariate space rather than discrete physical states.
-    \item \textbf{RQ5 (Predictive Power and Leakage)}: Under leak-free temporal and grouped splitting, network telemetry achieves near-chance classification (ROC-AUC $\approx 0.50$). Models fail to beat random guessing when direct label ingredients are excluded.
-\end{itemize}
+\noindent\textbf{A. Answers to Research Questions}---We systematically address the five research questions: \textbf{RQ1 (Distribution)}: Formal KS tests show no evidence against continuous uniformity for all nine telemetry variables after Bonferroni correction (all-nine Bonferroni bound $p_{\text{adj}} = 0.1947$). Pairwise correlations demonstrate no linear dependence ($|r| \le 0.0075$, none survive Bonferroni across 36 pairs); telemetry is statistically consistent with independent uniform generation. \textbf{RQ2 (Causality)}: Telemetry streams are weakly stationary ($p < 0.001$), but Granger causality tests across 450 machine-mode-lag configurations reveal zero statistically significant predictive precedence after FDR control ($0/450$ significant). \textbf{RQ3 (Breakpoint)}: The apparent 20.7\,ms latency breakpoint is an artifact of candidate quantile selection ($F=4.3127$, naive asymptotic $p=0.0378$). A supremum-$F$ permutation test reveals $p=0.1640$ (FDR $q=0.5100$), confirming the breakpoint is exploratory. \textbf{RQ4 (Regimes)}: Multi-$k$ clustering demonstrates that $k=4$ maximizes the silhouette score ($0.4063$ under \texttt{StandardScaler}), reflecting an arbitrary geometric partitioning of a continuous uniform bivariate space rather than discrete physical states. \textbf{RQ5 (Prediction)}: Under leak-free temporal and grouped splitting, network telemetry achieves near-chance classification (ROC-AUC 0.4738--0.5073), failing to beat random guessing when direct label ingredients are excluded.
 
-\subsection{The Methodological Hazard of Data-Chosen Breakpoints}
-Our empirical demonstration contrasting the naive $F$-test ($p=0.0381$) against the permutation test ($p=0.1640$) illustrates a fundamental methodological lesson for industrial informatics. In sensor telemetry, scanning for operational degradation thresholds across continuous grids is common practice. When the threshold is chosen to maximize fit, standard asymptotic $F$-distributions no longer apply. Without permutation resampling or Hansen's sample-splitting corrections~\cite{hansen2000sample}, researchers risk publishing spurious thresholds that fail to replicate in live manufacturing environments.
+\noindent\textbf{B. Methodological Hazard of Data-Chosen Breakpoints}---Our empirical demonstration contrasting the naive $F$-test ($p=0.0378$) against the permutation test ($p=0.1640$) illustrates a fundamental methodological lesson for industrial informatics. In sensor telemetry, scanning for operational degradation thresholds across continuous grids is common practice. When the threshold is chosen to maximize fit, standard asymptotic $F$-distributions no longer apply. Under the permutation null, the naive test yields a false positive rate of $20.45\%$. Without permutation resampling or Hansen's sample-splitting corrections~\cite{hansen2000sample}, researchers risk publishing spurious thresholds that fail to replicate in live manufacturing environments.
 
-\subsection{The Continuum Partitioning Fallacy}
-A parallel hazard occurs in unsupervised network profiling. Applying clustering algorithms (e.g., $K$-means) to uniform or uncoupled bivariate telemetry will always yield mathematical partitions. When Calinski-Harabasz metrics are inflated by large sample sizes ($N=100,000$), analysts may mistake these sectors for authentic network Quality of Service (QoS) classes. Rigorous validation against null uniform reference models is mandatory.
+\noindent\textbf{C. The Continuum Partitioning Fallacy}---A parallel hazard occurs in unsupervised network profiling. Applying clustering algorithms (e.g., $K$-means) to uniform or uncoupled bivariate telemetry will always yield mathematical partitions. When Calinski-Harabasz metrics scale with large sample sizes ($N=100,000$), high values are consistent with sample size scaling rather than cluster separability, and analysts may mistake these sectors for authentic network Quality of Service (QoS) classes. Rigorous validation against null uniform reference models is mandatory.
 
-\subsection{Alignment with 3GPP TS 22.104 and Operational Reality}
-Standards such as 3GPP TS 22.104~\cite{tgpp22104} mandate latencies below 1--10\,ms for motion control. In authentic factory environments, exceeding these limits causes PLC buffer overflows, emergency packet drops, and physical machine stops. In the analyzed synthetic benchmark, however, latency fluctuates uniformly between 1\,ms and 50\,ms without impacting machine physics. This highlights the urgent need for authentic open-access OT/IT datasets captured from physical testbeds.
+\noindent\textbf{D. Alignment with 3GPP TS 22.104 and Operational Reality}---Standards such as 3GPP TS 22.104~\cite{tgpp22104} mandate strict end-to-end latency and jitter bounds across motion control scenarios (Clause 5.1.1). In authentic factory environments, exceeding these limits causes PLC buffer overflows, emergency packet drops, and physical machine stops. In the analyzed benchmark, however, latency fluctuates uniformly between 1\,ms and 50\,ms without impacting machine physics. This highlights the urgent need for authentic open-access OT/IT datasets captured from physical testbeds.
 
-\subsection{Threats to Validity and Limitations}
-The primary limitation of this case study is that the underlying dataset is synthetic. While the benchmark provides realistic enterprise schemas, its uniform feature distributions prevent the emergence of genuine cyber-physical feedback loops. Our analysis does not imply that 6G URLLC is irrelevant to smart factories; rather, it proves that the benchmark dataset cannot support causal inferences regarding network QoS.
+\noindent\textbf{E. Threats to Validity and Limitations}---The primary limitation of this case study is that the underlying dataset is synthetic. While the benchmark provides realistic enterprise schemas, its uniform feature distributions prevent the emergence of genuine cyber-physical feedback loops. Our analysis does not imply that 6G URLLC is irrelevant to smart factories; rather, it proves that the benchmark dataset cannot support causal inferences regarding network QoS.
 
 \section{Conclusion and Future Work}
 \label{sec:conclusion}
-
-This paper presented an end-to-end, leakage-safe temporal-evidence pipeline for smart factory telemetry. Through rigorous statistical audits, we established that the benchmark dataset is statistically consistent with independent uniform generation, disconfirmed a naive 20.7\,ms latency breakpoint via supremum-$F$ permutation testing ($p=0.1640$), and demonstrated that network telemetry alone yields near-chance predictive power (ROC-AUC $\approx 0.50$) under leak-free validation.
-
-Our methodological findings underscore the critical importance of auditing generative distributions, guarding against proxy feature leakage, and validating data-chosen changepoints. Future work will deploy this open-source pipeline on physical, hardware-in-the-loop 5G/6G industrial testbeds to capture authentic non-linear network-physical interactions.
+This paper presented an end-to-end, leakage-safe temporal-evidence pipeline for smart factory telemetry. Through rigorous statistical audits, we established that the benchmark dataset shows no evidence against independent uniform generation, disconfirmed a naive 20.7\,ms latency breakpoint via supremum-$F$ permutation testing ($p=0.1640$), and demonstrated that network telemetry alone yields near-chance predictive power (ROC-AUC 0.4738--0.5073) under leak-free validation. Our findings underscore the critical importance of auditing generative distributions, guarding against proxy feature leakage, and validating data-chosen changepoints. Future work will deploy this open-source pipeline on physical, hardware-in-the-loop 5G/6G industrial testbeds to capture authentic non-linear network-physical interactions.
 
 \section*{Acknowledgment}
 The authors acknowledge institutional laboratory support. The complete open-source pipeline, audit suites, and interactive dashboard are publicly available at: \url{https://github.com/Atharva110409/smart-factory-6g-network}.

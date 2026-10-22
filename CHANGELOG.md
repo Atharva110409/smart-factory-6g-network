@@ -30,7 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 #### Step 3: Temporal Causal Evidence & Breakpoint Analysis
 - Implemented `src/causal_analysis.py` executing 450 machine- and mode-stratified VAR Granger causality tests.
 - Reconciled core headline finding: **Zero of 450 tests survived Benjamini-Hochberg FDR control ($q < 0.05$)**, proving zero forward predictive precedence.
-- Fitted continuous segmented piecewise linear regression, identifying an exploratory candidate breakpoint at **$20.7\text{ ms}$ in `Active` production mode** (slope change $\Delta \beta = -0.3063\text{ units/hr per ms}$, naive $F = 4.31, p = 0.038$, sup-F permutation $p = 0.155$, labeled strictly exploratory).
+- Fitted continuous segmented piecewise linear regression, identifying an exploratory candidate breakpoint at **$20.7\text{ ms}$ in `Active` production mode** (slope change $\Delta \beta = -0.3063\text{ units/hr per ms}$, naive $F = 4.3127, p = 0.038$, sup-F permutation $p = 0.1640$, labeled strictly exploratory).
 - Disclosed pooled cross-facility threshold instability (nominal 41.2 ms with wide bootstrap CI $[6.0, 45.2]\text{ ms}$).
 - Verified quality invariance to packet loss (flat defect curve $\sim 5.01\%$, impact ratio $1.0012$).
 

@@ -26,7 +26,7 @@ Formula: 0.5 * z(latency) + 0.5 * z(packet_loss)
 
 4. NETWORK TOLERANCE THRESHOLDS
 --------------------------------------------------------------------------------
-- Exploratory Active Production Breakpoint: 20.7 ms (naive F = 4.31, permutation p = 0.155, exploratory)
+- Exploratory Active Production Breakpoint: 20.7 ms (naive F = 4.3127, permutation p = 0.1640, exploratory)
 - Pooled Headline Threshold: 41.2 ms (95% Block Bootstrap CI: [6.0, 45.2] ms, permutation p = 0.755)
 - Packet Loss Threshold: None (Continuous flat response across 0% to 5%)
 

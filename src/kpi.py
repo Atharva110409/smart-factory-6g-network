@@ -149,7 +149,7 @@ def compute_tolerance_thresholds(
         "pooled_bootstrap_95ci": (6.0, 45.2),
         "packet_loss_threshold": "None (Continuous flat response across 0% to 5%)",
         "interpretation": (
-            "In active mechanical production, an exploratory candidate threshold appears at 20.7 ms (permutation p = 0.155, exploratory). "
+            "In active mechanical production, an exploratory candidate threshold appears at 20.7 ms (permutation p = 0.1640, exploratory). "
             "Packet loss displays no discrete cliff threshold within the observed 0-5% range."
         ),
     }
