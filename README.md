@@ -82,7 +82,7 @@ $$\mathbf{Network\;Degradation} \longrightarrow \mathbf{Temporal\;Evidence} \lon
 |                                    ANALYTICAL STORYLINE CHAIN                                      |
 +----------------------------------------------------------------------------------------------------+
 |  [Step 1 & 2] NETWORK PROFILING                                                                    |
-|  - 4 clusters form a pragmatic partition of continuous uniform space (Silhouette: 0.4061)          |
+|  - 4 clusters form a pragmatic partition of continuous uniform space (Silhouette: 0.4063)          |
 |  - Continuous Network Risk Index: 0.5 * z(lat) + 0.5 * z(loss)                                     |
 |                                       |                                                            |
 |                                       v                                                            |
@@ -207,7 +207,7 @@ python -c "from src.data_loader import load_raw, audit; df = load_raw(); report 
 ```bash
 python -c "from src.data_loader import load_raw; from src.network_profiling import select_k, cluster_network_quality; df = load_raw(); select_k(df); df_c, km, sc = cluster_network_quality(df); print('Clusters generated successfully!')"
 ```
-*Evaluates $k \in [2, 6]$, confirms $k=4$ optimality (Silhouette: 0.4061, Davies-Bouldin: 0.7687), orders tiers by Network Risk Index, and exports cluster scatter plots.*
+*Evaluates $k \in [2, 6]$, confirms $k=4$ optimality (Silhouette: 0.4063, Davies-Bouldin: 0.7690, Calinski-Harabasz: 99,386), orders tiers by Network Risk Index, and exports cluster scatter plots.*
 
 ### Step 3: Temporal Causal & Breakpoint Analysis
 ```bash

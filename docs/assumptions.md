@@ -62,11 +62,11 @@ This document tracks all formal assumptions, parameter selections, empirical aud
 ## 2. Network Performance Profiling & Clustering Empirical Evidence (Step 2)
 - **Feature Scaling**: Standardized z-score on `Network_Latency_ms` and `Packet_Loss_%`. `RobustScaler` was evaluated and yielded identical results (Silhouette 0.4095 vs 0.4095), confirming absence of extreme distributional distortion. Scaler fit strictly on training set only.
 - **Cluster Count ($k$) Selection**: Empirically evaluated across $k \in [2, 6]$:
-  - $k=2$: Inertia = 125,071.6, Silhouette = 0.3561, Davies-Bouldin = 1.1872
-  - $k=3$: Inertia = 79,311.0, Silhouette = 0.3757, Davies-Bouldin = 0.8680
-  - $k=4$: Inertia = 50,231.2, **Silhouette = 0.4061 (Maximum)**, **Davies-Bouldin = 0.7687 (Best/Minimum)**
-  - $k=5$: Inertia = 42,313.2, Silhouette = 0.3920, Davies-Bouldin = 0.8363
-  - $k=6$: Inertia = 35,911.5, Silhouette = 0.3781, Davies-Bouldin = 0.8381
+  - $k=2$: Inertia = 125,070.7, Silhouette = 0.3548, Davies-Bouldin = 1.1871, Calinski-Harabasz = 59,910
+  - $k=3$: Inertia = 79,315.3, Silhouette = 0.3764, Davies-Bouldin = 0.8687, Calinski-Harabasz = 76,078
+  - $k=4$: Inertia = 50,230.2, **Silhouette = 0.4063 (Maximum)**, **Davies-Bouldin = 0.7690 (Best/Minimum)**, Calinski-Harabasz = 99,386
+  - $k=5$: Inertia = 42,314.5, Silhouette = 0.3908, Davies-Bouldin = 0.8367, Calinski-Harabasz = 93,161
+  - $k=6$: Inertia = 35,980.0, Silhouette = 0.3745, Davies-Bouldin = 0.8422, Calinski-Harabasz = 91,169
   - **Empirical Decision**: $k=4$ is adopted as the data-driven clustering count, satisfying the specification requirement to avoid blindly assuming $k=3$.
 - **Ordered Risk Tiers (Mapped by Composite Risk)**:
   Clusters were ranked and mapped by composite Network Risk Index ($0.5 z_{\text{lat}} + 0.5 z_{\text{loss}}$):

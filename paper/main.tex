@@ -363,7 +363,7 @@ Evaluating $K$-means clustering across candidate cluster counts $k \in [2, 6]$ o
 \centering
 \begin{tabular}{ccccc}
 \toprule
-\textbf{Cluster Count $k$} & \textbf{Inertia} & \textbf{Silhouette} & \textbf{Davies-Bouldin} & \textbf{Calinski-Harabasz} \\
+\textbf{Cluster Count $k$} & \textbf{Inertia} & \textbf{Silhouette}\textsuperscript{\dag} & \textbf{Davies-Bouldin} & \textbf{Calinski-Harabasz} \\
 \midrule
 $k=2$ & 125,071 & 0.3548 & 1.1871 & 59,910 \\
 $k=3$ & 79,315 & 0.3764 & 0.8687 & 76,078 \\
@@ -372,9 +372,11 @@ $k=5$ & 42,314 & 0.3908 & 0.8367 & 93,161 \\
 $k=6$ & 35,980 & 0.3745 & 0.8422 & 91,169 \\
 \bottomrule
 \end{tabular}
+\vspace{1ex}
+{\raggedright \footnotesize \textsuperscript{\dag}Silhouette scores evaluated on a representative random subsample of $n=15,000$ observations (seed 42 in \texttt{src/network\_profiling.py}) due to $\mathcal{O}(N^2)$ pairwise distance complexity; Inertia, Davies-Bouldin, and Calinski-Harabasz indices evaluate all $N=100,000$ points.\par}
 \end{table}
 
-The optimal partition occurs at $k=4$, maximizing the silhouette score ($0.4063$) and minimizing the Davies-Bouldin index ($0.7690$). However, silhouette scores below $0.50$ confirm that these clusters do not represent discrete physical operational regimes; rather, they represent an arbitrary geometric Voronoi partition of a continuous uniform bivariate plane.
+The optimal partition occurs at $k=4$, maximizing the silhouette score ($0.4063$) and minimizing the Davies-Bouldin index ($0.7690$). Due to the $\mathcal{O}(N^2)$ pairwise distance complexity across $N=100,000$ observations, silhouette scores were computed on a representative random subsample of $n=15,000$ observations (seed 42 in \texttt{src/network\_profiling.py}), whereas Inertia, Davies-Bouldin, and Calinski-Harabasz indices were evaluated over all $100,000$ points. However, silhouette scores below $0.50$ confirm that these clusters do not represent discrete physical operational regimes; rather, they represent an arbitrary geometric Voronoi partition of a continuous uniform bivariate plane.
 
 \subsection{Supervised Predictive Modeling Ladder (RQ5)}
 Table~\ref{tab:model_ladder} presents the full empirical performance ladder across model formulations and validation splits from \texttt{reports/model\_baseline\_ladder.csv}.

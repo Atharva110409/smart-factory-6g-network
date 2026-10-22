@@ -37,7 +37,7 @@ $$\text{Network Degradation} \longrightarrow \text{Temporal Evidence} \longright
 |                                    ANALYTICAL STORYLINE CHAIN                                      |
 +----------------------------------------------------------------------------------------------------+
 |  [Step 1 & 2] NETWORK PROFILING                                                                    |
-|  - 4 clusters form a pragmatic partition of continuous uniform space (Silhouette: 0.4061)          |
+|  - 4 clusters form a pragmatic partition of continuous uniform space (Silhouette: 0.4063)          |
 |  - Continuous Network Risk Index: 0.5 * z(lat) + 0.5 * z(loss)                                     |
 |                                       |                                                            |
 |                                       v                                                            |
@@ -128,18 +128,18 @@ Industrial network performance varies across multiple physical modes (e.g., cong
 
 ```
 Cluster Optimization Metrics vs. Number of Clusters (k)
-+-------+------------------+-----------------------+--------------------------+
-|   k   | Inertia (SSE)    | Silhouette Score (Max)| Davies-Bouldin Index(Min)|
-+-------+------------------+-----------------------+--------------------------+
-|   2   | 125,071.6        | 0.3561                | 1.1872                   |
-|   3   |  79,311.0        | 0.3757                | 0.8680                   |
-|   4   |  50,231.2        | 0.4061  <-- BEST      | 0.7687  <-- BEST         |
-|   5   |  42,313.2        | 0.3920                | 0.8363                   |
-|   6   |  35,911.5        | 0.3781                | 0.8381                   |
-+-------+------------------+-----------------------+--------------------------+
++-------+------------------+-----------------------+--------------------------+----------------------------+
+|   k   | Inertia (SSE)    | Silhouette Score (Max)| Davies-Bouldin Index(Min)| Calinski-Harabasz Score    |
++-------+------------------+-----------------------+--------------------------+----------------------------+
+|   2   | 125,070.7        | 0.3548                | 1.1871                   | 59,910                     |
+|   3   |  79,315.3        | 0.3764                | 0.8687                   | 76,078                     |
+|   4   |  50,230.2        | 0.4063  <-- BEST      | 0.7690  <-- BEST         | 99,386  <-- BEST           |
+|   5   |  42,314.5        | 0.3908                | 0.8367                   | 93,161                     |
+|   6   |  35,980.0        | 0.3745                | 0.8422                   | 91,169                     |
++-------+------------------+-----------------------+--------------------------+----------------------------+
 ```
 
-As demonstrated in Figure 1 (`reports/clustering_evaluation_k_selection.png`), $k = 4$ simultaneously achieves the **global maximum Silhouette Score ($0.4061$)** and the **global minimum Davies-Bouldin Index ($0.7687$)**, while delivering a sharp elbow in sum-of-squared errors.
+As demonstrated in Figure 1 (`reports/clustering_evaluation_k_selection.png`) and archived in `reports/clustering_k_selection.csv`, $k = 4$ simultaneously achieves the **global maximum Silhouette Score ($0.4063$)**, the **global minimum Davies-Bouldin Index ($0.7690$)**, and the **global maximum Calinski-Harabasz score ($99,386$)**. Due to the $\mathcal{O}(N^2)$ pairwise distance complexity across $N=100,000$ points, the silhouette score was computed on a representative random subsample of $n=15,000$ points (random seed 42 in `src/network_profiling.py`), whereas Inertia, Davies-Bouldin, and Calinski-Harabasz indices were computed across all $100,000$ observations.
 
 ### 3.2 Quantitative Profiling of the Four Network Tiers
 The four clusters represent a pragmatic partition of a continuous (uniform) feature space rather than naturally occurring, distinct physical regimes. To establish a structured operational hierarchy, clusters were ordered by their composite Network Risk Index ($NRI = 0.5 \cdot z(\text{lat}) + 0.5 \cdot z(\text{loss})$):

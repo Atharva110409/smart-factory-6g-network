@@ -23,7 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 #### Step 2: Unsupervised Network Profiling & Continuous Risk Indexing
 - Implemented `src/network_profiling.py` evaluating cluster counts $k \in [2, 6]$.
-- Empirically selected $k = 4$ based on global maximum Silhouette Score ($0.4061$) and minimum Davies-Bouldin Index ($0.7687$).
+- Empirically selected $k = 4$ based on global maximum Silhouette Score ($0.4063$) and minimum Davies-Bouldin Index ($0.7690$).
 - Mapped clusters into 4 ordered operational risk tiers: Tier 0 (Optimal, -0.863), Tier 1 (Loss-Degraded, -0.004), Tier 2 (Latency-Degraded, +0.011), and Tier 3 (Critical, +0.866).
 - Formulated continuous Network Risk Index ($\text{NRI} = 0.5 \cdot z_{\text{lat}} + 0.5 \cdot z_{\text{loss}}$).
 
